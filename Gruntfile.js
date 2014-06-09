@@ -345,7 +345,6 @@ module.exports = function(grunt) {
       'concat',
       'ngAnnotate',
       'uglify',
-      'css-only',
     ]);
     
     grunt.registerTask('default', ['quick']);
