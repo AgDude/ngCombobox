@@ -19,9 +19,29 @@
  *                                               suggestions list.
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
  */
-tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInputConfig) {
+tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInputConfig, $q, grep) {
+    function getMatches(options){
+      return function($query){
+        
+        var term = $query.$query,
+          containsMatcher = new RegExp(term, "i"),
+          deferred = $q.defer(),
+          matched = grep( options, function(value){
+            return containsMatcher.test(value.text);
+          });
+          matched.sort(function(a,b){
+            if (a.text.indexOf(term) === 0 || b.text.indexOf(term) == 0){
+              return a.text.indexOf(term) - b.text.indexOf(term);
+            }
+            return 0;
+          });
+          deferred.resolve(matched);
+          return deferred.promise;
+      };
+    };
+
     function SuggestionList(loadFn, options) {
-        var self = {}, debouncedLoadId, getDifference, lastPromise;
+        var self = {}, debouncedLoadId, getDifference, getMatches, lastPromise;
 
         getDifference = function(array1, array2) {
             return array1.filter(function(item) {
@@ -43,6 +63,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
         self.show = function() {
             self.selected = null;
             self.visible = true;
+            self.select(0);
         };
         self.load = function(query, tags) {
             if (query.length < options.minLength) {
@@ -106,11 +127,11 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
     return {
         restrict: 'E',
         require: '^tagsInput',
-        scope: { source: '&' },
+        scope: { source: '=' },
         templateUrl: 'ngTagsInput/auto-complete.html',
         link: function(scope, element, attrs, tagsInputCtrl) {
-            var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down],
-                suggestionList, tagsInput, options, getItemText, documentClick;
+            var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period],
+                suggestionList, tagsInput, options, getItemText, documentClick, sourceFunc;
 
             tagsInputConfig.load('autoComplete', scope, attrs, {
                 debounceDelay: [Number, 100],
@@ -123,8 +144,15 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
 
             tagsInput = tagsInputCtrl.registerAutocomplete();
             options.tagsInput = tagsInput.getOptions();
+            
+            if ( typeof(scope.source) == "function"){
+              sourceFunc = scope.source;
+            }
+            else{
+              sourceFunc = getMatches(scope.source); 
+            };
 
-            suggestionList = new SuggestionList(scope.source, options);
+            suggestionList = new SuggestionList(sourceFunc, options);
 
             getItemText = function(item) {
                 return item[options.tagsInput.displayProperty];
@@ -233,4 +261,24 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
             });
         }
     };
+})
+.factory('grep',function(){
+  //Copied from jquery.grep
+  return function( elems, callback, invert ) {
+    var callbackInverse,
+      matches = [],
+      i = 0,
+      length = elems.length,
+      callbackExpect = !invert;
+
+    // Go through the array, only saving the items
+    // that pass the validator function
+    for ( ; i < length; i++ ) {
+      callbackInverse = !callback( elems[ i ], i );
+      if ( callbackInverse !== callbackExpect ) {
+        matches.push( elems[ i ] );
+      }
+    };
+    return matches;
+  };
 });

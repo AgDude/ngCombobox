@@ -202,7 +202,7 @@ module.exports = function(grunt) {
         // Watches the JS files for changes and runs unit tests
         watch: {
             files: ['<%= files.js.src %>'],
-            tasks: ['test']
+            tasks: ['quick']
         },
         // Updates the CHANGELOG file
         changelog: {

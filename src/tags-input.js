@@ -119,15 +119,16 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
         templateUrl: 'ngTagsInput/tags-input.html',
         controller: function($scope, $attrs, $element) {
             tagsInputConfig.load('tagsInput', $scope, $attrs, {
-                placeholder: [String, 'Add a tag'],
+                placeholder: [String, ''],
                 tabindex: [Number],
                 removeTagSymbol: [String, String.fromCharCode(215)],
                 replaceSpacesWithDashes: [Boolean, true],
-                minLength: [Number, 3],
+                minLength: [Number, 2],
                 maxLength: [Number],
                 addOnEnter: [Boolean, true],
-                addOnSpace: [Boolean, false],
+                addOnSpace: [Boolean, true],
                 addOnComma: [Boolean, true],
+                addOnPeriod: [Boolean, true],
                 addOnBlur: [Boolean, true],
                 allowedTagsPattern: [RegExp, /.+/],
                 enableEditingLastTag: [Boolean, false],
@@ -135,7 +136,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 maxTags: [Number],
                 displayProperty: [String, 'text'],
                 allowLeftoverText: [Boolean, false],
-                addFromAutocompleteOnly: [Boolean, false]
+                addFromAutocompleteOnly: [Boolean, true]
             });
 
             $scope.events = new SimplePubSub();
@@ -168,7 +169,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
             };
         },
         link: function(scope, element, attrs, ngModelCtrl) {
-            var hotkeys = [KEYS.enter, KEYS.comma, KEYS.space, KEYS.backspace],
+            var hotkeys = [KEYS.enter, KEYS.comma, KEYS.space, KEYS.backspace, KEYS.period, KEYS.dot],
                 tagList = scope.tagList,
                 events = scope.events,
                 options = scope.options,
@@ -203,7 +204,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                     }
                 });
 
-            scope.newTag = { text: '', invalid: null };
+            scope.newTag = { text: '', invalid: null, readonly: false, };
 
             scope.getDisplayText = function(tag) {
                 return tag[options.displayProperty].trim();
@@ -239,7 +240,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                     var key = e.keyCode,
                         isModifier = e.shiftKey || e.altKey || e.ctrlKey || e.metaKey,
                         addKeys = {},
-                        shouldAdd, shouldRemove;
+                        shouldAdd, shouldRemove, shouldBlock;
 
                     if (isModifier || hotkeys.indexOf(key) === -1) {
                         return;
@@ -248,9 +249,12 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                     addKeys[KEYS.enter] = options.addOnEnter;
                     addKeys[KEYS.comma] = options.addOnComma;
                     addKeys[KEYS.space] = options.addOnSpace;
+                    addKeys[KEYS.period] = options.addOnPeriod;
+                    addKeys[KEYS.dot] = options.addOnPeriod;
 
                     shouldAdd = !options.addFromAutocompleteOnly && addKeys[key];
                     shouldRemove = !shouldAdd && key === KEYS.backspace && scope.newTag.text.length === 0;
+                    shouldBlock = options.addFromAutocompleteOnly && scope.newTag.invalid && addKeys[key];
 
                     if (shouldAdd) {
                         tagList.addText(scope.newTag.text);
@@ -266,6 +270,15 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
 
                         scope.$apply();
                         e.preventDefault();
+                    }
+                    else if (shouldBlock) {
+                      scope.newTag.text = 'Invalid Entry...';
+                      scope.newTag.readonly = true;
+                      scope.$apply();
+                      $timeout(function(){
+                        scope.newTag.text = '';
+                        scope.newTag.readonly = false;
+                      },2000);
                     }
                 })
                 .on('focus', function() {
