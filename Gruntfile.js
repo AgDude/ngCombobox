@@ -52,7 +52,7 @@ module.exports = function(grunt) {
                         ' *\n' +
                         ' * Generated at <%= grunt.template.today("yyyy-mm-dd HH:MM:ss o") %>\n' +
                         ' */',
-            minified: '/*! <%= pkg.prettyName %> v<%= pkg.version %> License: <%= pkg.license %> */'
+            minified: '/*! <%= pkg.prettyName %> v<%= pkg.version %>, License: <%= pkg.license %>, Generated at <%= grunt.template.today("yyyy-mm-dd HH:MM:ss o") %> */'
         },
         // Validates the JS file with JSHint
         jshint: {
@@ -339,5 +339,14 @@ module.exports = function(grunt) {
         'shell:git_build'
     ]);
 
-    grunt.registerTask('default', ['pack']);
+    grunt.registerTask('quick', [
+      'clean',
+      'ngtemplates',
+      'concat',
+      'ngAnnotate',
+      'uglify',
+      'css-only',
+    ]);
+    
+    grunt.registerTask('default', ['quick']);
 };

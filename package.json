@@ -38,11 +38,11 @@
     "grunt-text-replace": "0.3.11",
     "grunt-shell": "0.6.4",
     "grunt-ngdocs": "0.2.1",
-    "grunt-contrib-sass": "0.7.3",
     "karma-coverage": "0.1.5",
     "karma-jasmine": "0.2.2",
     "karma-chrome-launcher": "0.1.2",
     "karma-phantomjs-launcher": "0.1.2",
-    "karma-ng-html2js-preprocessor": "0.1.0"
+    "karma-ng-html2js-preprocessor": "0.1.0",
+    "grunt-sass": "~0.13.1"
   }
 }
