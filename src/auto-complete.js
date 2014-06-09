@@ -127,22 +127,31 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
     return {
         restrict: 'E',
         require: '^tagsInput',
-        scope: { source: '=' },
         templateUrl: 'ngTagsInput/auto-complete.html',
+        scope: true,
         link: function(scope, element, attrs, tagsInputCtrl) {
             var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period],
                 suggestionList, tagsInput, options, getItemText, documentClick, sourceFunc;
 
             tagsInputConfig.load('autoComplete', scope, attrs, {
                 debounceDelay: [Number, 100],
-                minLength: [Number, 3],
+                minSearchLength: [Number, 3],
                 highlightMatchedText: [Boolean, true],
                 maxResultsToShow: [Number, 10]
             });
 
             options = scope.options;
+            
+            var toggleSuggestionList = function(){
+              if (suggestionList.visible){
+                suggestionList.reset();
+              }
+              else{
+                suggestionList.load(scope.newTag.text, tagsInput.getTags());
+              }
+            };
 
-            tagsInput = tagsInputCtrl.registerAutocomplete();
+            tagsInput = tagsInputCtrl.registerAutocomplete(toggleSuggestionList);
             options.tagsInput = tagsInput.getOptions();
             
             if ( typeof(scope.source) == "function"){
@@ -185,7 +194,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
             scope.track = function(item) {
                 return getItemText(item);
             };
-
+            
             tagsInput
                 .on('tag-added invalid-tag', function() {
                     suggestionList.reset();

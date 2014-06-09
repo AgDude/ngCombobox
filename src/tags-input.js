@@ -112,7 +112,8 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
         scope: {
             tags: '=ngModel',
             onTagAdded: '&',
-            onTagRemoved: '&'
+            onTagRemoved: '&',
+            source: '='
         },
         replace: false,
         transclude: true,
@@ -136,13 +137,19 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 maxTags: [Number],
                 displayProperty: [String, 'text'],
                 allowLeftoverText: [Boolean, false],
-                addFromAutocompleteOnly: [Boolean, true]
+                addFromAutocompleteOnly: [Boolean, true],
+                showAll: [Boolean, true],
+                debounceDelay: [Number, 100],
+                minSearchLength: [Number, 3],
+                highlightMatchedText: [Boolean, true],
+                maxResultsToShow: [Number, 10],
             });
 
             $scope.events = new SimplePubSub();
             $scope.tagList = new TagList($scope.options, $scope.events);
 
-            this.registerAutocomplete = function() {
+            this.registerAutocomplete = function(toggleFunc) {
+                $scope.toggleSuggestionList = toggleFunc;
                 var input = $element.find('input');
                 input.on('keydown', function(e) {
                     $scope.events.trigger('input-keydown', e);
@@ -306,6 +313,13 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
             element.find('div').on('click', function() {
                 input[0].focus();
             });
+            
+            // //add the button for showAll
+            // if (scope.options[showAll]){
+              // var showBtn = angular.element('<span class="input-group-addon"><span class="ui-button-icon-primary ui-icon ui-icon-triangle-1-s"><span class="ui-button-text" style="padding: 0px;">&nbsp;</span></span></span>');
+              // showBtn.insertAfter(element);
+              // $compile(showBtn)(scope);
+            // }
         }
     };
 });

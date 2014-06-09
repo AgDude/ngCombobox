@@ -1,4 +1,4 @@
-<div class="host" tabindex="-1" ti-transclude-append>
+<div class="host" ng-class="{'input-group': options.showAll}" tabindex="-1" ti-transclude-append>
   <div class="tags" ng-class="{focused: hasFocus}">
     <ul class="tag-list">
       <li class="tag-item" ng-repeat="tag in tagList.items track by $id(tag)" ng-class="{ selected: tag == tagList.selected }">
@@ -17,4 +17,15 @@
            ng-class="{'invalid-tag': newTag.invalid}"
            ti-autosize>
   </div>
+  <auto-complete ng-if="source"
+    debounce-delay="{{options.debounceDelay}}"
+    min-search-length="{{options.minSearchLength}}"
+    highlight-matched-text="{{options.highlightMatchedText}}"
+    maxResults-to-show="{{options.maxResultsToShow}}">
+  </auto-complete>
+  <span class="input-group-addon" ng-if="options.showAll">
+    <span class="ui-button-icon-primary ui-icon ui-icon-triangle-1-s" ng-click="toggleSuggestionList();">
+      <span class="ui-button-text" style="padding: 0px;">&nbsp;</span>
+    </span>
+  </span>
 </div>

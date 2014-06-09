@@ -1,11 +1,13 @@
 /*!
  * ngTagsInput v2.0.1
- * http://mbenford.github.io/ngTagsInput
+ * 
+ *
+ * Copyright (c) 2014-2014 Nate Dudenhoeffer
  *
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-09 13:41:40 -0500
+ * Generated at 2014-06-09 18:43:48 -0500
  */
 (function() {
 'use strict';
@@ -188,7 +190,8 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
         scope: {
             tags: '=ngModel',
             onTagAdded: '&',
-            onTagRemoved: '&'
+            onTagRemoved: '&',
+            source: '='
         },
         replace: false,
         transclude: true,
@@ -212,13 +215,19 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 maxTags: [Number],
                 displayProperty: [String, 'text'],
                 allowLeftoverText: [Boolean, false],
-                addFromAutocompleteOnly: [Boolean, true]
+                addFromAutocompleteOnly: [Boolean, true],
+                showAll: [Boolean, true],
+                debounceDelay: [Number, 100],
+                minSearchLength: [Number, 3],
+                highlightMatchedText: [Boolean, true],
+                maxResultsToShow: [Number, 10],
             });
 
             $scope.events = new SimplePubSub();
             $scope.tagList = new TagList($scope.options, $scope.events);
 
-            this.registerAutocomplete = function() {
+            this.registerAutocomplete = function(toggleFunc) {
+                $scope.toggleSuggestionList = toggleFunc;
                 var input = $element.find('input');
                 input.on('keydown', function(e) {
                     $scope.events.trigger('input-keydown', e);
@@ -382,6 +391,13 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
             element.find('div').on('click', function() {
                 input[0].focus();
             });
+            
+            // //add the button for showAll
+            // if (scope.options[showAll]){
+              // var showBtn = angular.element('<span class="input-group-addon"><span class="ui-button-icon-primary ui-icon ui-icon-triangle-1-s"><span class="ui-button-text" style="padding: 0px;">&nbsp;</span></span></span>');
+              // showBtn.insertAfter(element);
+              // $compile(showBtn)(scope);
+            // }
         }
     };
 }]);
@@ -513,22 +529,31 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputCon
     return {
         restrict: 'E',
         require: '^tagsInput',
-        scope: { source: '=' },
         templateUrl: 'ngTagsInput/auto-complete.html',
+        scope: true,
         link: function(scope, element, attrs, tagsInputCtrl) {
             var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period],
                 suggestionList, tagsInput, options, getItemText, documentClick, sourceFunc;
 
             tagsInputConfig.load('autoComplete', scope, attrs, {
                 debounceDelay: [Number, 100],
-                minLength: [Number, 3],
+                minSearchLength: [Number, 3],
                 highlightMatchedText: [Boolean, true],
                 maxResultsToShow: [Number, 10]
             });
 
             options = scope.options;
+            
+            var toggleSuggestionList = function(){
+              if (suggestionList.visible){
+                suggestionList.reset();
+              }
+              else{
+                suggestionList.load(scope.newTag.text, tagsInput.getTags());
+              }
+            };
 
-            tagsInput = tagsInputCtrl.registerAutocomplete();
+            tagsInput = tagsInputCtrl.registerAutocomplete(toggleSuggestionList);
             options.tagsInput = tagsInput.getOptions();
             
             if ( typeof(scope.source) == "function"){
@@ -571,7 +596,7 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputCon
             scope.track = function(item) {
                 return getItemText(item);
             };
-
+            
             tagsInput
                 .on('tag-added invalid-tag', function() {
                     suggestionList.reset();
@@ -829,7 +854,7 @@ tagsInput.provider('tagsInputConfig', function() {
 /* HTML templates */
 tagsInput.run(["$templateCache", function($templateCache) {
     $templateCache.put('ngTagsInput/tags-input.html',
-    "<div class=\"host\" tabindex=\"-1\" ti-transclude-append=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-autosize=\"\"></div></div>"
+    "<div class=\"host\" ng-class=\"{'input-group': options.showAll}\" tabindex=\"-1\" ti-transclude-append=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-autosize=\"\"></div><auto-complete ng-if=\"source\" debounce-delay=\"{{options.debounceDelay}}\" min-search-length=\"{{options.minSearchLength}}\" highlight-matched-text=\"{{options.highlightMatchedText}}\" maxresults-to-show=\"{{options.maxResultsToShow}}\"></auto-complete><span class=\"input-group-addon\" ng-if=\"options.showAll\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
   );
 
   $templateCache.put('ngTagsInput/auto-complete.html',
