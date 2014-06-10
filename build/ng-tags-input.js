@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-09 18:43:48 -0500
+ * Generated at 2014-06-10 08:51:54 -0500
  */
 (function() {
 'use strict';
@@ -253,13 +253,30 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 };
             };
         }],
-        link: function(scope, element, attrs, ngModelCtrl) {
+        link: {
+          post: function(scope, element, attrs, ngModelCtrl) {
             var hotkeys = [KEYS.enter, KEYS.comma, KEYS.space, KEYS.backspace, KEYS.period, KEYS.dot],
                 tagList = scope.tagList,
                 events = scope.events,
                 options = scope.options,
                 input = element.find('input');
-
+            
+            if ( attrs.source == "options" ){
+              var tagsModel = [];
+              if ( !ngModelCtrl.$isEmpty() ){
+                tagsModel = ngModelCtrl.$viewValue;
+              }
+              scope.source = [];
+              angular.forEach(element.find('option'),function(opt, index){
+                var optObj = {value: opt.value, text: opt.label};
+                scope.source.push(optObj);
+                if ( opt.selected ){
+                  tagsModel.push(optObj);
+                }
+                ngModelCtrl.$setViewValue(tagsModel);
+              });
+            };
+            
             events
                 .on('tag-added', scope.onTagAdded)
                 .on('tag-removed', scope.onTagRemoved)
@@ -399,6 +416,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
               // $compile(showBtn)(scope);
             // }
         }
+      }
     };
 }]);
 
@@ -702,10 +720,10 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputCon
  * @description
  * Re-creates the old behavior of ng-transclude. Used internally by tagsInput directive.
  */
-tagsInput.directive('tiTranscludeAppend', function() {
+tagsInput.directive('tiTranscludePrepend', function() {
     return function(scope, element, attrs, ctrl, transcludeFn) {
         transcludeFn(function(clone) {
-            element.append(clone);
+            element.prepend(clone);
         });
     };
 });
@@ -854,7 +872,7 @@ tagsInput.provider('tagsInputConfig', function() {
 /* HTML templates */
 tagsInput.run(["$templateCache", function($templateCache) {
     $templateCache.put('ngTagsInput/tags-input.html',
-    "<div class=\"host\" ng-class=\"{'input-group': options.showAll}\" tabindex=\"-1\" ti-transclude-append=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-autosize=\"\"></div><auto-complete ng-if=\"source\" debounce-delay=\"{{options.debounceDelay}}\" min-search-length=\"{{options.minSearchLength}}\" highlight-matched-text=\"{{options.highlightMatchedText}}\" maxresults-to-show=\"{{options.maxResultsToShow}}\"></auto-complete><span class=\"input-group-addon\" ng-if=\"options.showAll\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
+    "<div class=\"host\" ng-class=\"{'input-group': options.showAll && source}\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-autosize=\"\"></div><auto-complete ng-if=\"source\" debounce-delay=\"{{options.debounceDelay}}\" min-search-length=\"{{options.minSearchLength}}\" highlight-matched-text=\"{{options.highlightMatchedText}}\" maxresults-to-show=\"{{options.maxResultsToShow}}\"></auto-complete><span class=\"input-group-addon\" ng-if=\"options.showAll && source\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
   );
 
   $templateCache.put('ngTagsInput/auto-complete.html',

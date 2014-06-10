@@ -175,13 +175,30 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 };
             };
         },
-        link: function(scope, element, attrs, ngModelCtrl) {
+        link: {
+          post: function(scope, element, attrs, ngModelCtrl) {
             var hotkeys = [KEYS.enter, KEYS.comma, KEYS.space, KEYS.backspace, KEYS.period, KEYS.dot],
                 tagList = scope.tagList,
                 events = scope.events,
                 options = scope.options,
                 input = element.find('input');
-
+            
+            if ( attrs.source == "options" ){
+              var tagsModel = [];
+              if ( !ngModelCtrl.$isEmpty() ){
+                tagsModel = ngModelCtrl.$viewValue;
+              }
+              scope.source = [];
+              angular.forEach(element.find('option'),function(opt, index){
+                var optObj = {value: opt.value, text: opt.label};
+                scope.source.push(optObj);
+                if ( opt.selected ){
+                  tagsModel.push(optObj);
+                }
+                ngModelCtrl.$setViewValue(tagsModel);
+              });
+            };
+            
             events
                 .on('tag-added', scope.onTagAdded)
                 .on('tag-removed', scope.onTagRemoved)
@@ -321,5 +338,6 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
               // $compile(showBtn)(scope);
             // }
         }
+      }
     };
 });
