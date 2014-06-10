@@ -130,7 +130,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
         templateUrl: 'ngTagsInput/auto-complete.html',
         scope: true,
         link: function(scope, element, attrs, tagsInputCtrl) {
-            var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period],
+            var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period, KEYS.space, KEYS.comma],
                 suggestionList, tagsInput, options, getItemText, documentClick, sourceFunc;
 
             tagsInputConfig.load('autoComplete', scope, attrs, {
@@ -171,6 +171,10 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
 
             scope.addSuggestion = function() {
                 var added = false;
+                
+                if ( scope.tags.length >= scope.options.tagsInput.maxTags ){
+                  scope.tags.pop();
+                }
 
                 if (suggestionList.selected) {
                     tagsInput.addTag(suggestionList.selected);
@@ -241,7 +245,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
                             suggestionList.reset();
                             handled = true;
                         }
-                        else if (key === KEYS.enter || key === KEYS.tab) {
+                        else if ( scope.addKeys[key] ) {
                             handled = scope.addSuggestion();
                         }
 

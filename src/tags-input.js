@@ -195,6 +195,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 if ( opt.selected ){
                   tagsModel.push(optObj);
                 }
+                opt.remove();
                 ngModelCtrl.$setViewValue(tagsModel);
               });
             };
@@ -207,6 +208,12 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 })
                 .on('tag-added tag-removed', function() {
                     ngModelCtrl.$setViewValue(scope.tags);
+                    if ( scope.tags.length >= options.maxTags ){
+                      scope.newTag.readonly = true;
+                    }
+                    else{
+                      scope.newTag.readonly = false;
+                    }
                 })
                 .on('invalid-tag', function() {
                     scope.newTag.invalid = true;
@@ -251,7 +258,15 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 ngModelCtrl.$setValidity('maxTags', angular.isUndefined(options.maxTags) || value <= options.maxTags);
                 ngModelCtrl.$setValidity('minTags', angular.isUndefined(options.minTags) || value >= options.minTags);
             });
-
+            
+            var addKeys = {};
+            addKeys[KEYS.enter] = options.addOnEnter;
+            addKeys[KEYS.comma] = options.addOnComma;
+            addKeys[KEYS.space] = options.addOnSpace;
+            addKeys[KEYS.period] = options.addOnPeriod;
+            addKeys[KEYS.dot] = options.addOnPeriod;
+            scope.addKeys = addKeys;
+            
             input
                 .on('keydown', function(e) {
                     // This hack is needed because jqLite doesn't implement stopImmediatePropagation properly.
@@ -263,18 +278,13 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
 
                     var key = e.keyCode,
                         isModifier = e.shiftKey || e.altKey || e.ctrlKey || e.metaKey,
-                        addKeys = {},
                         shouldAdd, shouldRemove, shouldBlock;
 
                     if (isModifier || hotkeys.indexOf(key) === -1) {
                         return;
                     }
 
-                    addKeys[KEYS.enter] = options.addOnEnter;
-                    addKeys[KEYS.comma] = options.addOnComma;
-                    addKeys[KEYS.space] = options.addOnSpace;
-                    addKeys[KEYS.period] = options.addOnPeriod;
-                    addKeys[KEYS.dot] = options.addOnPeriod;
+
 
                     shouldAdd = !options.addFromAutocompleteOnly && addKeys[key];
                     shouldRemove = !shouldAdd && key === KEYS.backspace && scope.newTag.text.length === 0;

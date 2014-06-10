@@ -2,7 +2,7 @@
 @import "variables";
 
 tags-input .autocomplete {
-  margin-top: 5px;
+  margin-top: -2px;
   position: absolute;
   padding: 5px 0;
   z-index: $suggestion-box-z-index;
@@ -42,5 +42,9 @@ tags-input .autocomplete {
       color: $suggestion-highlight-color;
       background-color: $suggestion-highlight-bgcolor;
     }
+  }
+  
+  .divider {
+    @include nav-divider($suggestion-divider-bgcolor);
   }
 }

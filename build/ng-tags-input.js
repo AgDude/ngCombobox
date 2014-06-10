@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-10 08:51:54 -0500
+ * Generated at 2014-06-10 10:52:42 -0500
  */
 (function() {
 'use strict';
@@ -273,6 +273,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 if ( opt.selected ){
                   tagsModel.push(optObj);
                 }
+                opt.remove();
                 ngModelCtrl.$setViewValue(tagsModel);
               });
             };
@@ -285,6 +286,12 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 })
                 .on('tag-added tag-removed', function() {
                     ngModelCtrl.$setViewValue(scope.tags);
+                    if ( scope.tags.length >= options.maxTags ){
+                      scope.newTag.readonly = true;
+                    }
+                    else{
+                      scope.newTag.readonly = false;
+                    }
                 })
                 .on('invalid-tag', function() {
                     scope.newTag.invalid = true;
@@ -329,7 +336,15 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 ngModelCtrl.$setValidity('maxTags', angular.isUndefined(options.maxTags) || value <= options.maxTags);
                 ngModelCtrl.$setValidity('minTags', angular.isUndefined(options.minTags) || value >= options.minTags);
             });
-
+            
+            var addKeys = {};
+            addKeys[KEYS.enter] = options.addOnEnter;
+            addKeys[KEYS.comma] = options.addOnComma;
+            addKeys[KEYS.space] = options.addOnSpace;
+            addKeys[KEYS.period] = options.addOnPeriod;
+            addKeys[KEYS.dot] = options.addOnPeriod;
+            scope.addKeys = addKeys;
+            
             input
                 .on('keydown', function(e) {
                     // This hack is needed because jqLite doesn't implement stopImmediatePropagation properly.
@@ -341,18 +356,11 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
 
                     var key = e.keyCode,
                         isModifier = e.shiftKey || e.altKey || e.ctrlKey || e.metaKey,
-                        addKeys = {},
                         shouldAdd, shouldRemove, shouldBlock;
 
                     if (isModifier || hotkeys.indexOf(key) === -1) {
                         return;
                     }
-
-                    addKeys[KEYS.enter] = options.addOnEnter;
-                    addKeys[KEYS.comma] = options.addOnComma;
-                    addKeys[KEYS.space] = options.addOnSpace;
-                    addKeys[KEYS.period] = options.addOnPeriod;
-                    addKeys[KEYS.dot] = options.addOnPeriod;
 
                     shouldAdd = !options.addFromAutocompleteOnly && addKeys[key];
                     shouldRemove = !shouldAdd && key === KEYS.backspace && scope.newTag.text.length === 0;
@@ -550,7 +558,7 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputCon
         templateUrl: 'ngTagsInput/auto-complete.html',
         scope: true,
         link: function(scope, element, attrs, tagsInputCtrl) {
-            var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period],
+            var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period, KEYS.space, KEYS.comma],
                 suggestionList, tagsInput, options, getItemText, documentClick, sourceFunc;
 
             tagsInputConfig.load('autoComplete', scope, attrs, {
@@ -591,6 +599,10 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputCon
 
             scope.addSuggestion = function() {
                 var added = false;
+                
+                if ( scope.tags.length >= scope.options.tagsInput.maxTags ){
+                  scope.tags.pop();
+                }
 
                 if (suggestionList.selected) {
                     tagsInput.addTag(suggestionList.selected);
@@ -661,7 +673,7 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputCon
                             suggestionList.reset();
                             handled = true;
                         }
-                        else if (key === KEYS.enter || key === KEYS.tab) {
+                        else if ( scope.addKeys[key] ) {
                             handled = scope.addSuggestion();
                         }
 
