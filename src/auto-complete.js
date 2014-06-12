@@ -20,25 +20,7 @@
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
  */
 tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInputConfig, $q, grep) {
-    function getMatches(options){
-      return function($query){
-        
-        var term = $query.$query,
-          containsMatcher = new RegExp(term, "i"),
-          deferred = $q.defer(),
-          matched = grep( options, function(value){
-            return containsMatcher.test(value.text);
-          });
-          matched.sort(function(a,b){
-            if (a.text.indexOf(term) === 0 || b.text.indexOf(term) == 0){
-              return a.text.indexOf(term) - b.text.indexOf(term);
-            }
-            return 0;
-          });
-          deferred.resolve(matched);
-          return deferred.promise;
-      };
-    };
+    
 
     function SuggestionList(loadFn, options) {
         var self = {}, debouncedLoadId, getDifference, getMatches, lastPromise;
@@ -150,6 +132,24 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
                 suggestionList.load(scope.newTag.text, tagsInput.getTags());
               }
             };
+            
+            function getMatches($query){
+                
+                var term = $query.$query,
+                  containsMatcher = new RegExp(term, "i"),
+                  deferred = $q.defer(),
+                  matched = grep( scope.source, function(value){
+                    return containsMatcher.test(value.text);
+                  });
+                  matched.sort(function(a,b){
+                    if (a.text.indexOf(term) === 0 || b.text.indexOf(term) == 0){
+                      return a.text.indexOf(term) - b.text.indexOf(term);
+                    }
+                    return 0;
+                  });
+                  deferred.resolve(matched);
+                  return deferred.promise;
+              };
 
             tagsInput = tagsInputCtrl.registerAutocomplete(toggleSuggestionList);
             options.tagsInput = tagsInput.getOptions();
@@ -158,9 +158,9 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
               sourceFunc = scope.source;
             }
             else{
-              sourceFunc = getMatches(scope.source); 
+              sourceFunc = getMatches; 
             };
-
+            
             suggestionList = new SuggestionList(sourceFunc, options);
 
             getItemText = function(item) {

@@ -113,7 +113,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
             tags: '=ngModel',
             onTagAdded: '&',
             onTagRemoved: '&',
-            source: '='
+            source: '=?',
         },
         replace: false,
         transclude: true,
@@ -183,21 +183,23 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 options = scope.options,
                 input = element.find('input');
             
-            if ( attrs.source == "options" ){
-              var tagsModel = [];
+            var htmlOptions = element.find('option');
+            
+            if ( htmlOptions.length > 0 ){
+              var tagsModel = new Array, source = new Array;
               if ( !ngModelCtrl.$isEmpty() ){
                 tagsModel = ngModelCtrl.$viewValue;
               }
-              scope.source = [];
-              angular.forEach(element.find('option'),function(opt, index){
+              angular.forEach(htmlOptions,function(opt, index){
                 var optObj = {value: opt.value, text: opt.label};
-                scope.source.push(optObj);
+                source.push(optObj);
                 if ( opt.selected ){
                   tagsModel.push(optObj);
                 }
-                opt.remove();
-                ngModelCtrl.$setViewValue(tagsModel);
+                angular.element(opt).remove();
               });
+              scope.source = source;
+              ngModelCtrl.$setViewValue(tagsModel);
             };
             
             events
@@ -341,12 +343,6 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 input[0].focus();
             });
             
-            // //add the button for showAll
-            // if (scope.options[showAll]){
-              // var showBtn = angular.element('<span class="input-group-addon"><span class="ui-button-icon-primary ui-icon ui-icon-triangle-1-s"><span class="ui-button-text" style="padding: 0px;">&nbsp;</span></span></span>');
-              // showBtn.insertAfter(element);
-              // $compile(showBtn)(scope);
-            // }
         }
       }
     };

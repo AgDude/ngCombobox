@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-10 10:52:42 -0500
+ * Generated at 2014-06-12 17:50:45 -0500
  */
 (function() {
 'use strict';
@@ -191,7 +191,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
             tags: '=ngModel',
             onTagAdded: '&',
             onTagRemoved: '&',
-            source: '='
+            source: '=?',
         },
         replace: false,
         transclude: true,
@@ -261,21 +261,23 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 options = scope.options,
                 input = element.find('input');
             
-            if ( attrs.source == "options" ){
-              var tagsModel = [];
+            var htmlOptions = element.find('option');
+            
+            if ( htmlOptions.length > 0 ){
+              var tagsModel = new Array, source = new Array;
               if ( !ngModelCtrl.$isEmpty() ){
                 tagsModel = ngModelCtrl.$viewValue;
               }
-              scope.source = [];
-              angular.forEach(element.find('option'),function(opt, index){
+              angular.forEach(htmlOptions,function(opt, index){
                 var optObj = {value: opt.value, text: opt.label};
-                scope.source.push(optObj);
+                source.push(optObj);
                 if ( opt.selected ){
                   tagsModel.push(optObj);
                 }
-                opt.remove();
-                ngModelCtrl.$setViewValue(tagsModel);
+                angular.element(opt).remove();
               });
+              scope.source = source;
+              ngModelCtrl.$setViewValue(tagsModel);
             };
             
             events
@@ -417,12 +419,6 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 input[0].focus();
             });
             
-            // //add the button for showAll
-            // if (scope.options[showAll]){
-              // var showBtn = angular.element('<span class="input-group-addon"><span class="ui-button-icon-primary ui-icon ui-icon-triangle-1-s"><span class="ui-button-text" style="padding: 0px;">&nbsp;</span></span></span>');
-              // showBtn.insertAfter(element);
-              // $compile(showBtn)(scope);
-            // }
         }
       }
     };
@@ -448,25 +444,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
  */
 tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputConfig","$q","grep", function($document, $timeout, $sce, tagsInputConfig, $q, grep) {
-    function getMatches(options){
-      return function($query){
-        
-        var term = $query.$query,
-          containsMatcher = new RegExp(term, "i"),
-          deferred = $q.defer(),
-          matched = grep( options, function(value){
-            return containsMatcher.test(value.text);
-          });
-          matched.sort(function(a,b){
-            if (a.text.indexOf(term) === 0 || b.text.indexOf(term) == 0){
-              return a.text.indexOf(term) - b.text.indexOf(term);
-            }
-            return 0;
-          });
-          deferred.resolve(matched);
-          return deferred.promise;
-      };
-    };
+    
 
     function SuggestionList(loadFn, options) {
         var self = {}, debouncedLoadId, getDifference, getMatches, lastPromise;
@@ -578,6 +556,24 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputCon
                 suggestionList.load(scope.newTag.text, tagsInput.getTags());
               }
             };
+            
+            function getMatches($query){
+                
+                var term = $query.$query,
+                  containsMatcher = new RegExp(term, "i"),
+                  deferred = $q.defer(),
+                  matched = grep( scope.source, function(value){
+                    return containsMatcher.test(value.text);
+                  });
+                  matched.sort(function(a,b){
+                    if (a.text.indexOf(term) === 0 || b.text.indexOf(term) == 0){
+                      return a.text.indexOf(term) - b.text.indexOf(term);
+                    }
+                    return 0;
+                  });
+                  deferred.resolve(matched);
+                  return deferred.promise;
+              };
 
             tagsInput = tagsInputCtrl.registerAutocomplete(toggleSuggestionList);
             options.tagsInput = tagsInput.getOptions();
@@ -586,9 +582,9 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputCon
               sourceFunc = scope.source;
             }
             else{
-              sourceFunc = getMatches(scope.source); 
+              sourceFunc = getMatches; 
             };
-
+            scope.sourceFunc = sourceFunc;
             suggestionList = new SuggestionList(sourceFunc, options);
 
             getItemText = function(item) {
@@ -884,7 +880,7 @@ tagsInput.provider('tagsInputConfig', function() {
 /* HTML templates */
 tagsInput.run(["$templateCache", function($templateCache) {
     $templateCache.put('ngTagsInput/tags-input.html',
-    "<div class=\"host\" ng-class=\"{'input-group': options.showAll && source}\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-autosize=\"\"></div><auto-complete ng-if=\"source\" debounce-delay=\"{{options.debounceDelay}}\" min-search-length=\"{{options.minSearchLength}}\" highlight-matched-text=\"{{options.highlightMatchedText}}\" maxresults-to-show=\"{{options.maxResultsToShow}}\"></auto-complete><span class=\"input-group-addon\" ng-if=\"options.showAll && source\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
+    "<div class=\"host\" ng-class=\"{'input-group': options.showAll && source}\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-autosize=\"\"></div><auto-complete debounce-delay=\"{{options.debounceDelay}}\" min-search-length=\"{{options.minSearchLength}}\" highlight-matched-text=\"{{options.highlightMatchedText}}\" maxresults-to-show=\"{{options.maxResultsToShow}}\"></auto-complete><span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
   );
 
   $templateCache.put('ngTagsInput/auto-complete.html',
