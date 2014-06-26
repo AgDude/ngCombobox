@@ -4,3 +4,5 @@ node_js:
 before_script:
   - npm install -g grunt-cli@0.1.11 karma-cli@0.0.4
 script: grunt travis
+notifications:
+  email: false
