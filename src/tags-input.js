@@ -210,12 +210,6 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 })
                 .on('tag-added tag-removed', function() {
                     ngModelCtrl.$setViewValue(scope.tags);
-                    if ( scope.tags.length >= options.maxTags ){
-                      scope.newTag.readonly = true;
-                    }
-                    else{
-                      scope.newTag.readonly = false;
-                    }
                 })
                 .on('invalid-tag', function() {
                     scope.newTag.invalid = true;
@@ -257,6 +251,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
             });
 
             scope.$watch('tags.length', function(value) {
+                scope.newTag.readonly = value >= options.maxTags;
                 ngModelCtrl.$setValidity('maxTags', angular.isUndefined(options.maxTags) || value <= options.maxTags);
                 ngModelCtrl.$setValidity('minTags', angular.isUndefined(options.minTags) || value >= options.minTags);
             });
