@@ -50,10 +50,6 @@ In addition to `pack` there are other useful tasks you might want to use:
 - `watch`: Runs all tests automatically every time the source code files change.
 - `coverage`: Generates the code coverage report. This may help you be sure nothing is left untested.
 
-# Guidelines
-
-Even though ngTagsInput isn't a big project, there are a few guidelines I'd like you to follow so everything remains organized and consistent.
-
 ## Coding guidelines
 
 No endless list of conventions and standards here; just three simple guidelines:
