@@ -1,5 +1,7 @@
-This is a fork from:
-Tags input directive for AngularJS. Check out the [ngTagsInput website](http://mbenford.github.io/ngTagsInput) for more information. Many thanks to mBedford for the work he put into it. This fork has different objectives from ngTagsInput, which are outlined below.
+
+## NgCombobox [![Build Status](https://travis-ci.org/AgDude/ngCombobox.svg?branch=master)](https://travis-ci.org/AgDude/ngCombobox) [![Coverage Status](https://coveralls.io/repos/AgDude/ngCombobox/badge.png)](https://coveralls.io/r/AgDude/ngCombobox)
+
+This is a fork from the ngTagsInput Check out the [ngTagsInput website](http://mbenford.github.io/ngTagsInput) for more information. Many thanks to mBedford for the work he put into it. This fork has different objectives from ngTagsInput, which are outlined below.
 
 ## Requirements
 
