@@ -9,10 +9,11 @@
     "undef": true,
     "eqnull": true,
     "freeze": true,
-    "indent": 4,
+    "indent": 2,
     "newcap": true,
     "latedef": false,
     "trailing": true,
+    "-W032": true,
     "globals": {
         "angular": true,
         "module": true,

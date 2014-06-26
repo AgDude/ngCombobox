@@ -1,113 +1,122 @@
 'use strict';
 
-describe('autosize directive', function() {
-    var $scope, $compile,
-        element, style, container;
+describe('autosize directive', function () {
+  var $scope, $compile,
+    element, style, container;
 
-    beforeEach(function() {
-        module('ngTagsInput');
+  beforeEach(function () {
+    module('ngTagsInput');
 
-        inject(function($rootScope, _$compile_) {
-            $scope = $rootScope;
-            $compile = _$compile_;
-        });
-
-        style = angular.element('<style> .input { box-sizing: border-box; border: 1px; padding: 2px; font: Arial 18px; }</style>').appendTo('head');
-        container = angular.element('<div></div>').appendTo('body');
+    inject(function ($rootScope, _$compile_) {
+      $scope = $rootScope;
+      $compile = _$compile_;
     });
 
-    afterEach(function() {
-        style.remove();
-        container.remove();
-    });
+    style = angular.element('<style> .input { box-sizing: border-box; border: 1px; padding: 2px; font: Arial 18px; }</style>')
+      .appendTo('head');
+    container = angular.element('<div></div>')
+      .appendTo('body');
+  });
 
-    function compile() {
-        var attributes = $.makeArray(arguments).join(' ');
+  afterEach(function () {
+    style.remove();
+    container.remove();
+  });
 
-        element = angular.element('<input class="input" ng-model="model" ng-trim="false" ti-autosize ' + attributes + '>');
-        container.append(element);
+  function compile() {
+    var attributes = $.makeArray(arguments)
+      .join(' ');
 
-        $compile(element)($scope);
-        $scope.$digest();
-    }
+    element = angular.element('<input class="input" ng-model="model" ng-trim="false" ti-autosize ' + attributes + '>');
+    container.append(element);
 
-    function getTextWidth(text) {
-        var width, span = angular.element('<span class="input"></span>');
+    $compile(element)($scope);
+    $scope.$digest();
+  }
 
-        span.css('white-space', 'pre');
-        span.text(text);
-        container.append(span);
-        width = parseInt(span.prop('offsetWidth'), 10) + 3;
+  function getTextWidth(text) {
+    var width, span = angular.element('<span class="input"></span>');
 
-        span.remove();
+    span.css('white-space', 'pre');
+    span.text(text);
+    container.append(span);
+    width = parseInt(span.prop('offsetWidth'), 10) + 3;
 
-        return width + 'px';
-    }
+    span.remove();
 
-    it('re-sizes the input width when its view content changes', function() {
-        // Arrange
-        var text = 'AAAAAAAAAA';
-        compile();
+    return width + 'px';
+  }
 
-        // Act
-        element.val(text);
-        element.trigger('input');
+  it('re-sizes the input width when its view content changes', function () {
+    // Arrange
+    var text = 'AAAAAAAAAA';
+    compile();
 
-        // Arrange
-        expect(element.css('width')).toBe(getTextWidth(text));
-    });
+    // Act
+    element.val(text);
+    element.trigger('input');
 
-    it('re-sizes the input width when its model value changes', function() {
-        // Arrange
-        var text = 'AAAAAAAAAAAAAAAAAAAA';
-        compile();
+    // Arrange
+    expect(element.css('width'))
+      .toBe(getTextWidth(text));
+  });
 
-        // Act
-        $scope.model = text;
-        $scope.$digest();
+  it('re-sizes the input width when its model value changes', function () {
+    // Arrange
+    var text = 'AAAAAAAAAAAAAAAAAAAA';
+    compile();
 
-        // Arrange
-        expect(element.css('width')).toBe(getTextWidth(text));
-    });
+    // Act
+    $scope.model = text;
+    $scope.$digest();
 
-    it('sets the input width as the placeholder width when the input is empty', function() {
-        // Arrange
-        $scope.placeholder = 'Some placeholder';
-        compile('placeholder="{{placeholder}}"');
+    // Arrange
+    expect(element.css('width'))
+      .toBe(getTextWidth(text));
+  });
 
-        // Act
-        $scope.model = '';
-        $scope.$digest();
+  it('sets the input width as the placeholder width when the input is empty', function () {
+    // Arrange
+    $scope.placeholder = 'Some placeholder';
+    compile('placeholder="{{placeholder}}"');
 
-        // Assert
-        expect(element.css('width')).toBe(getTextWidth('Some placeholder'));
-    });
+    // Act
+    $scope.model = '';
+    $scope.$digest();
 
-    it('sets the input width as the placeholder width when the input is empty and the placeholder changes', function() {
-        // Arrange
-        $scope.placeholder = 'Some placeholder';
-        compile('placeholder="{{placeholder}}"');
-        $scope.model = '';
-        $scope.$digest();
+    // Assert
+    expect(element.css('width'))
+      .toBe(getTextWidth('Some placeholder'));
+  });
 
-        // Act
-        $scope.placeholder = 'Some very lengthy placeholder';
-        $scope.$digest();
+  it('sets the input width as the placeholder width when the input is empty and the placeholder changes', function () {
+    // Arrange
+    $scope.placeholder = 'Some placeholder';
+    compile('placeholder="{{placeholder}}"');
+    $scope.model = '';
+    $scope.$digest();
 
-        // Assert
-        expect(element.css('width')).toBe(getTextWidth('Some very lengthy placeholder'));
-    });
+    // Act
+    $scope.placeholder = 'Some very lengthy placeholder';
+    $scope.$digest();
 
-    it('clears the input width when it cannot be calculated', function() {
-        // Arrange
-        container.hide();
-        compile();
+    // Assert
+    expect(element.css('width'))
+      .toBe(getTextWidth('Some very lengthy placeholder'));
+  });
 
-        // Act
-        element.val('AAAAAAAAAAAAAA');
-        element.trigger('input');
+  it('clears the input width when it cannot be calculated', function () {
+    // Arrange
+    container.hide();
+    compile();
 
-        // Assert
-        expect(element.prop('style').width).toBe('');
-    });
+    // Act
+    element.val('AAAAAAAAAAAAAA');
+    element.trigger('input');
+
+    // Assert
+    expect(element.prop('style')
+        .width)
+      .toBe('');
+  });
 });
