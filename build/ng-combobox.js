@@ -1,5 +1,5 @@
 /*!
- * ngTagsInput v2.0.1
+ * ngCombobox v2.0.1
  * 
  *
  * Copyright (c) 2014-2014 Nate Dudenhoeffer
@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-26 08:25:24 -0500
+ * Generated at 2014-06-26 12:17:51 -0500
  */
 (function() {
 'use strict';

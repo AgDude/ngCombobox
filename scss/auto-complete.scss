@@ -9,6 +9,7 @@ tags-input .autocomplete {
   width: $suggestion-box-width;
   background-color: $suggestion-box-color;
   border: $suggestion-box-border;
+  border-radius: $tag-border-radius;
   @include box-shadow($suggestion-box-shadow);
 
   .suggestion-list {

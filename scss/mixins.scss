@@ -8,3 +8,11 @@
   -moz-box-shadow: $args;
   box-shadow: $args;
 }
+
+@mixin nav-divider($color: #e5e5e5) {
+  // from Bootstrap 3
+  height: 1px;
+  margin: (($suggestion-divider-line-height / 2) - 1) 0;
+  overflow: hidden;
+  background-color: $suggestion-divider-bgcolor;
+}

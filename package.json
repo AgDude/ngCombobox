@@ -2,10 +2,10 @@
   "author": {
     "name": "Nate Dudenhoeffer"
   },
-  "name": "ng-tags-input",
-  "prettyName": "ngTagsInput",
+  "name": "ng-combobox",
+  "prettyName": "ngCombobox",
   "version": "2.0.1",
-  "description": "Tags input directive for AngularJS",
+  "description": "Combobox directive for AngularJS",
   "license": "MIT",
   "repository": {
     "type": "git",

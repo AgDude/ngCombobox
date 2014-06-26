@@ -198,7 +198,7 @@ module.exports = function (grunt) {
     },
     // Watches the JS files for changes and runs unit tests
     watch: {
-      files: ['<%= files.js.src %>'],
+      files: ['<%= files.js.src %>', 'scss/*.scss'],
       tasks: ['quick']
     },
     // Updates the CHANGELOG file
@@ -349,6 +349,7 @@ module.exports = function (grunt) {
     'concat',
     'ngAnnotate',
     'uglify',
+    'sass',
   ]);
 
   grunt.registerTask('default', ['quick']);
