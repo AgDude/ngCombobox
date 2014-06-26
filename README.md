@@ -1,5 +1,5 @@
 This is a fork from:
-Tags input directive for AngularJS. Check out the [ngTagsInput website](http://mbenford.github.io/ngTagsInput) for more information. Many thanks to mBedford for the work he put into it. This fork has different objective from ngTagsInput, which are outlined below.
+Tags input directive for AngularJS. Check out the [ngTagsInput website](http://mbenford.github.io/ngTagsInput) for more information. Many thanks to mBedford for the work he put into it. This fork has different objectives from ngTagsInput, which are outlined below.
 
 ## Requirements
 
