@@ -3,15 +3,15 @@
 
 This is a fork from the ngTagsInput Check out the [ngTagsInput website](http://mbenford.github.io/ngTagsInput) for more information. Many thanks to mBedford for the work he put into it. This fork has different objectives from ngTagsInput, which are outlined below.
 
-## Requirements
-
- - AngularJS 1.2.1+ (v1.2.0 **is not** supported due to [an API change](https://github.com/angular/angular.js/commit/90f870) in Angular)
- - A modern browser
-
 ## Changes from ngTagsInput
 
 ngCombobox is designed to be a flexible combobox/autocomplete input, with no dependencies. It supports autocomplete, and can read options from a remote source, a static model on the scope, or a series of options elements (like a html select or ng-options). It optionally supports allowing users to enter a value that wasn't in the initial options model. When used in conjunction with Bootstrap 3 forms css, it can also act as a "select" input, allowing the user to click an arrow to view the options.
 
+## Requirements
+
+ - AngularJS 1.2.1+ (v1.2.0 **is not** supported due to [an API change](https://github.com/angular/angular.js/commit/90f870) in Angular)
+ - A sort-of modern browser. IE8 it currently supported, but may not be in the future.
+ 
 ## Usage
 
  1. Add the `ngTagsInput` module as a dependency in your AngularJS app;
