@@ -133,6 +133,7 @@ tagsInput.directive('tagsInput', function ($timeout, $document, tagsInputConfig)
         minLength: [Number, 2],
         maxLength: [Number],
         addOnEnter: [Boolean, true],
+        addOnTab: [Boolean, true],
         addOnSpace: [Boolean, true],
         addOnComma: [Boolean, true],
         addOnPeriod: [Boolean, true],
@@ -221,6 +222,7 @@ tagsInput.directive('tagsInput', function ($timeout, $document, tagsInputConfig)
           })
           .on('tag-added tag-removed', function () {
             ngModelCtrl.$setViewValue(scope.tags);
+            scope.$eval(attrs.ngChange);
           })
           .on('invalid-tag', function () {
             scope.newTag.invalid = true;
@@ -273,6 +275,7 @@ tagsInput.directive('tagsInput', function ($timeout, $document, tagsInputConfig)
 
         var addKeys = {};
         addKeys[KEYS.enter] = options.addOnEnter;
+        addKeys[KEYS.tab] = options.addOnTab;
         addKeys[KEYS.comma] = options.addOnComma;
         addKeys[KEYS.space] = options.addOnSpace;
         addKeys[KEYS.period] = options.addOnPeriod;

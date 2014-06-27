@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-26 12:17:51 -0500
+ * Generated at 2014-06-26 17:51:59 -0500
  */
 (function() {
 'use strict';
@@ -211,6 +211,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
         minLength: [Number, 2],
         maxLength: [Number],
         addOnEnter: [Boolean, true],
+        addOnTab: [Boolean, true],
         addOnSpace: [Boolean, true],
         addOnComma: [Boolean, true],
         addOnPeriod: [Boolean, true],
@@ -299,6 +300,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
           })
           .on('tag-added tag-removed', function () {
             ngModelCtrl.$setViewValue(scope.tags);
+            scope.$eval(attrs.ngChange);
           })
           .on('invalid-tag', function () {
             scope.newTag.invalid = true;
@@ -351,6 +353,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
 
         var addKeys = {};
         addKeys[KEYS.enter] = options.addOnEnter;
+        addKeys[KEYS.tab] = options.addOnTab;
         addKeys[KEYS.comma] = options.addOnComma;
         addKeys[KEYS.space] = options.addOnSpace;
         addKeys[KEYS.period] = options.addOnPeriod;
@@ -678,8 +681,10 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","tagsInputCon
               }
 
               if (handled) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
+                if (scope.tags.length != scope.options.tagsInput.maxTags || key != KEYS.tab ){
+                  e.preventDefault();
+                  e.stopImmediatePropagation();
+                }
                 scope.$apply();
               }
             }

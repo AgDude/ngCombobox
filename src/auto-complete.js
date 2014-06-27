@@ -246,8 +246,10 @@ tagsInput.directive('autoComplete', function ($document, $timeout, $sce, tagsInp
               }
 
               if (handled) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
+                if (scope.tags.length != scope.options.tagsInput.maxTags || key != KEYS.tab ){
+                  e.preventDefault();
+                  e.stopImmediatePropagation();
+                }
                 scope.$apply();
               }
             }
