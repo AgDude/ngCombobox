@@ -17,6 +17,11 @@
            ng-class="{'invalid-tag': newTag.invalid}"
            ti-autosize>
   </div>
+  <div class="autocomplete" ng-show="!suggestionList.visible && suggestionList.loading"> 
+    <ul class="suggestion-list">
+      <li class="suggestion-item">{{ suggestionList.msg }}</li>
+    </ul>
+  </div>
   <div class="autocomplete" ng-show="suggestionList.visible"> 
     <ul class="suggestion-list">
       <li class="suggestion-item"

@@ -1,8 +1,8 @@
 // I was going to actually make these services, but I decided to copy and paste for now.
-ngCombobox.factory('SuggestionList',function($timeout, $q){
+ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
   return function(primaryFn, secondaryFn, options) {
       var self = {},
-        debouncedLoadId, getDifference, lastPromise;
+        debouncedLoadId,loadingInterval, getDifference, lastPromise;
 
       getDifference = function (array1, array2) {
         return array1.filter(function (item) {
@@ -15,25 +15,43 @@ ngCombobox.factory('SuggestionList',function($timeout, $q){
 
         self.items = [];
         self.visible = false;
+        self.loading = false;
         self.index = -1;
         self.selected = null;
         self.query = null;
 
         $timeout.cancel(debouncedLoadId);
+        $interval.cancel(loadingInterval)
       };
       self.show = function () {
         self.selected = null;
         self.visible = true;
+        self.loading = false;
         self.select(0);
       };
       
+      self.loadingFn = function(msg){
+        var count = 0;
+        loadingInterval = $interval(function(){
+          count ++;
+          var dots = new Array(count % 6).join('.');
+          self.msg = msg + dots;
+        }, 250);
+      };
+      
       self.load = function (query, tags, force, loadFn) {
-        if ( loadFn == undefined ){
-          loadFn = primaryFn;
-        }
         if (query.length < options.minLength && !force) {
           self.reset();
           return;
+        }
+        
+        if ( loadFn == undefined ){
+          loadFn = primaryFn;
+        }
+        
+        self.msg = options.loadingMsg;
+        if ( loadFn == secondaryFn ){
+          self.msg = options.secondaryMsg;
         }
 
         $timeout.cancel(debouncedLoadId);
@@ -43,6 +61,10 @@ ngCombobox.factory('SuggestionList',function($timeout, $q){
           var promise = loadFn({
             $query: query
           });
+          if ( self.msg ){
+            self.loadingFn(self.msg);
+            $timeout(function(){self.loading = true;});
+          };
           lastPromise = promise;
 
           promise.then(function (items) {
@@ -53,6 +75,7 @@ ngCombobox.factory('SuggestionList',function($timeout, $q){
             items = makeObjectArray(items.data || items, options.displayProperty);
             items = getDifference(items, tags);
             if ( secondaryFn && items.length === 0 &&  loadFn === primaryFn){
+              self.visible = false;
               return self.load(query, tags, force, secondaryFn);
             }
             self.items = items.slice(0, options.maxResultsToShow);

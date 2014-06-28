@@ -2,8 +2,8 @@
 
 /**
  * @ngdoc directive
- * @name ngCombobox
- * @module ngTagsInput
+ * @name combobox
+ * @module ngComboBox
  *
  * @description
  * Renders an input box with tag editing support.
@@ -36,6 +36,7 @@
  * @param {expression} source Expression to evaluate upon changing the input content. The input value is available as
  *                            $query. The result of the expression must be a promise that eventually resolves to an
  *                            array of strings.
+ * @param {expression} secondarySource Expression to use if source returns zero items.
  * @param {number=} [debounceDelay=100] Amount of time, in milliseconds, to wait before evaluating the expression in
  *                                      the source option after the last keystroke.
  * @param {number=} [minLength=3] Minimum number of characters that must be entered before evaluating the expression
@@ -43,6 +44,8 @@
  * @param {boolean=} [highlightMatchedText=true] Flag indicating that the matched text will be highlighted in the
  *                                               suggestions list.
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
+ * @param {string=} [loadingMsg=None] A message to be displayed while asynchronous results load.
+ * @param {stiring=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
  */
 ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMatches, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
   
@@ -85,6 +88,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
         minSearchLength: [Number, 3],
         highlightMatchedText: [Boolean, true],
         maxResultsToShow: [Number, 10],
+        loadingMsg: [String, ''],
+        secondaryMsg: [String, ''],
       });
 
       $scope.events = new SimplePubSub();
