@@ -24,6 +24,7 @@
  * @param {boolean=} [addOnComma=true] Flag indicating that a new tag will be added on pressing the COMMA key.
  * @param {boolean=} [addOnBlur=true] Flag indicating that a new tag will be added when the input field loses focus.
  * @param {boolean=} [replaceSpacesWithDashes=true] Flag indicating that spaces will be replaced with dashes.
+ * @param {boolean=} [showTotal=true] When true, if more than maxResultsToShow are available, a message will be added at the bottom to indicate extra.
  * @param {string=} [allowedTagsPattern=.+] Regular expression that determines whether a new tag is valid.
  * @param {boolean=} [enableEditingLastTag=false] Flag indicating that the last tag will be moved back into
  *                                                the new tag input box instead of being removed when the backspace key
@@ -75,6 +76,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
         replaceSpacesWithDashes: [Boolean, true],
         minLength: [Number, 2],
         maxLength: [Number],
+        showTotal: [Boolean, true],
         addOnEnter: [Boolean, true],
         addOnTab: [Boolean, true],
         addOnSpace: [Boolean, true],

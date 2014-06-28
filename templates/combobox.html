@@ -36,6 +36,10 @@
         ng-mouseenter="suggestionList.select($index)"
         ng-bind-html="highlight(item)">
       </li>
+      <li class="suggestion-item"
+        ng-show="options.showTotal && suggestionList.more"
+      >... and {{ suggestionList.more }} more
+      </li>
     </ul>
   </div>
   <span class="input-group-addon" ng-if="options.showAll" ng-click="toggleSuggestionList();">

@@ -79,6 +79,7 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
               self.visible = false;
               return self.load(query, tags, force, secondaryFn);
             }
+            self.more = Math.max(0,items.length - options.maxResultsToShow)
             self.items = items.slice(0, options.maxResultsToShow);
 
             if (self.items.length > 0) {
