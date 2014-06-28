@@ -9,7 +9,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/agdude/ngTagsInput.git"
+    "url": "https://github.com/agdude/ngCombbox.git"
   },
   "scripts": {
     "test": "grunt test"

@@ -4,7 +4,7 @@
   <title>ngTagsInput Test Page</title>
   <script type="text/javascript" src="lib/angular.js"></script>
   <script type="text/javascript" src="../build/combobox.js"></script>
-  <link rel="stylesheet" href="../build/ng-tags-input.css"/>
+  <link rel="stylesheet" href="../build/ng-combobox.css"/>
   <style>
     .foo .tags .input {
       font-size: 16px;
@@ -44,7 +44,7 @@
 <body ng-controller="Ctrl">
 <input type="checkbox" ng-model="visible"/>
   <form name="form">
-    <tags-input name="tags" ng-if="visible" ng-init="tags2=['item1', 'item2', 'item3']" ng-model="tags2" display-property="label"
+    <combobox name="tags" ng-if="visible" ng-init="tags2=['item1', 'item2', 'item3']" ng-model="tags2" display-property="label"
                 add-on-enter="{{addOnEnter}}"
                 add-on-blur="true"
                 placeholder="{{placeholder}}"
@@ -56,7 +56,7 @@
                      min-length="1"
                      max-results-to-show="10">
       </auto-complete>
-    </tags-input>
+    </combobox>
 
     <p>Valid: {{form.tags.$valid}}</p>
     <p>Errors: {{form.tags.$error}}</p>
@@ -120,13 +120,13 @@
         })
         .config(function(tagsInputConfigProvider) {
             tagsInputConfigProvider
-              .setDefaults('tagsInput', {
+              .setDefaults('combobox', {
                 placeholder: 'New tag'
               })
               .setDefaults('autoComplete', {
                 highlightMatchedText: true
               })
-              .setActiveInterpolation('tagsInput', {
+              .setActiveInterpolation('combobox', {
                 placeholder: true,
                 removeTagSymbol: true,
                 addOnEnter: true

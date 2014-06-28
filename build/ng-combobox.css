@@ -1,16 +1,16 @@
-tags-input *, *:before, *:after {
+combobox *, *:before, *:after {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box; }
 
-tags-input .host {
+combobox .host {
   position: relative;
   margin-top: 5px;
   margin-bottom: 5px; }
-  tags-input .host:active {
+  combobox .host:active {
     outline: none; }
 
-tags-input .tags {
+combobox .tags {
   -moz-appearance: textfield;
   -webkit-appearance: textfield;
   padding: 1px;
@@ -22,17 +22,17 @@ tags-input .tags {
   border-radius: 4px;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s; }
-  tags-input .tags.focused {
+  combobox .tags.focused {
     outline: none;
     border-color: #66afe9;
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }
-  tags-input .tags .tag-list {
+  combobox .tags .tag-list {
     margin: 0;
     padding: 0;
     list-style-type: none; }
-  tags-input .tags .tag-item {
+  combobox .tags .tag-item {
     margin: 2px;
     padding: 0 5px;
     display: inline-block;
@@ -44,10 +44,10 @@ tags-input .tags {
     border-radius: 4px;
     background: #428bca;
     color: #fff; }
-    tags-input .tags .tag-item.selected {
+    combobox .tags .tag-item.selected {
       background: #d9534f;
       border: 1px solid #d9534f; }
-    tags-input .tags .tag-item .remove-button {
+    combobox .tags .tag-item .remove-button {
       margin: 0 0 0 5px;
       padding: 0;
       border: none;
@@ -56,9 +56,9 @@ tags-input .tags {
       vertical-align: middle;
       font: bold 16px Arial, sans-serif;
       color: #585858; }
-      tags-input .tags .tag-item .remove-button:active {
+      combobox .tags .tag-item .remove-button:active {
         color: #ff0000; }
-  tags-input .tags .input {
+  combobox .tags .input {
     border: 0;
     outline: none;
     margin: 2px;
@@ -67,19 +67,19 @@ tags-input .tags {
     float: left;
     height: 26px;
     font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-    tags-input .tags .input.invalid-tag {
+    combobox .tags .input.invalid-tag {
       color: #ff0000; }
-    tags-input .tags .input::-ms-clear {
+    combobox .tags .input::-ms-clear {
       display: none; }
-tags-input .input-group .tags {
+combobox .input-group .tags {
   border-bottom-right-radius: 0;
   border-top-right-radius: 0; }
-tags-input.ng-invalid .tags {
+combobox.ng-invalid .tags {
   -webkit-box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
   -moz-box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
   box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6); }
 
-tags-input .autocomplete {
+combobox .autocomplete {
   margin-top: -2px;
   position: absolute;
   padding: 5px 0;
@@ -91,11 +91,11 @@ tags-input .autocomplete {
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); }
-  tags-input .autocomplete .suggestion-list {
+  combobox .autocomplete .suggestion-list {
     margin: 0;
     padding: 0;
     list-style-type: none; }
-  tags-input .autocomplete .suggestion-item {
+  combobox .autocomplete .suggestion-item {
     padding: 5px 10px;
     cursor: pointer;
     white-space: nowrap;
@@ -104,17 +104,17 @@ tags-input .autocomplete {
     font: 16px 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: #000;
     background-color: #fff; }
-    tags-input .autocomplete .suggestion-item.selected {
+    combobox .autocomplete .suggestion-item.selected {
       color: #262626;
       background-color: #e9e9e9; }
-      tags-input .autocomplete .suggestion-item.selected em {
+      combobox .autocomplete .suggestion-item.selected em {
         color: #262626;
         background-color: #ffff00; }
-    tags-input .autocomplete .suggestion-item em {
+    combobox .autocomplete .suggestion-item em {
       font: normal bold 16px 'Helvetica Neue', Helvetica, Arial, sans-serif;
       color: #000;
       background-color: #ffff00; }
-  tags-input .autocomplete .divider {
+  combobox .autocomplete .divider {
     height: 1px;
     margin: 9px 0;
     overflow: hidden;

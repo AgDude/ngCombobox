@@ -1,11 +1,11 @@
 
-## NgCombobox [![Build Status](https://travis-ci.org/AgDude/ngCombobox.svg?branch=master)](https://travis-ci.org/AgDude/ngCombobox) [![Coverage Status](https://coveralls.io/repos/AgDude/ngCombobox/badge.png)](https://coveralls.io/r/AgDude/ngCombobox)
+## NgCombobox [![Build Status](https://travis-ci.org/AgDude/combobox.svg?branch=master)](https://travis-ci.org/AgDude/combobox) [![Coverage Status](https://coveralls.io/repos/AgDude/combobox/badge.png)](https://coveralls.io/r/AgDude/combobox)
 
 This is a fork from the ngTagsInput Check out the [ngTagsInput website](http://mbenford.github.io/ngTagsInput) for more information. Many thanks to mBedford for the work he put into it. This fork has different objectives from ngTagsInput, which are outlined below.
 
 ## Changes from ngTagsInput
 
-ngCombobox is designed to be a flexible combobox/autocomplete input, with no dependencies. It supports autocomplete, and can read options from a remote source, a static model on the scope, or a series of options elements (like a html select or ng-options). It optionally supports allowing users to enter a value that wasn't in the initial options model, or to select multiple options. When used in conjunction with Bootstrap 3 forms css, it can also act as a "select" input, allowing the user to click an arrow to view the options.
+combobox is designed to be a flexible combobox/autocomplete input, with no dependencies. It supports autocomplete, and can read options from a remote source, a static model on the scope, or a series of options elements (like a html select or ng-options). It optionally supports allowing users to enter a value that wasn't in the initial options model, or to select multiple options. When used in conjunction with Bootstrap 3 forms css, it can also act as a "select" input, allowing the user to click an arrow to view the options.
 
 ## Requirements
 
@@ -15,9 +15,9 @@ ngCombobox is designed to be a flexible combobox/autocomplete input, with no dep
 ## Usage
 
  1. Add the `ngTagsInput` module as a dependency in your AngularJS app;
- 2. Add the custom directive `<tags-input>` to the HTML file where you want to use an input tag control and bind it to a property of your model. That property, if it exists, must be an array of objects and each object must have a property named `text` containing the tag text;
+ 2. Add the custom directive `<combobox>` to the HTML file where you want to use an input tag control and bind it to a property of your model. That property, if it exists, must be an array of objects and each object must have a property named `text` containing the tag text;
  3. Set up the options that make sense to your application;
- 4. Enable autocomplete, if you want to use it, by adding the directive `<auto-complete>` inside the `<tags-input>` tag, and bind it to a function of your model. That function must return a promise that eventually resolves to an array of objects (same rule from step 2 applies here);
+ 4. Enable autocomplete, if you want to use it, by adding the directive `<auto-complete>` inside the `<combobox>` tag, and bind it to a function of your model. That function must return a promise that eventually resolves to an array of objects (same rule from step 2 applies here);
  5. Customize the CSS classes, if you want to.
  6. You're done!
 
@@ -29,8 +29,8 @@ ngCombobox is designed to be a flexible combobox/autocomplete input, with no dep
 <html>
 <head>
     <script src="angular.min.js"></script>
-    <script src="ng-tags-input.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="ng-tags-input.min.css">
+    <script src="ng-combobox.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="ng-combobox.min.css">
     <script>
         angular.module('myApp', ['ngTagsInput'])
             .controller('MyCtrl', function($scope, $http) {
@@ -47,9 +47,9 @@ ngCombobox is designed to be a flexible combobox/autocomplete input, with no dep
     </script>
 </head>
 <body ng-app="myApp" ng-controller="MyCtrl">
-    <tags-input ng-model="tags">
+    <combobox ng-model="tags">
         <auto-complete source="loadTags($query)"></auto-complete>
-    </tags-input>
+    </combobox>
 </body>
 </html>
 ```

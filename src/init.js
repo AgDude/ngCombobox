@@ -1,6 +1,6 @@
 'use strict';
 
-var tagsInput = angular.module('ngTagsInput', [])
+var ngCombobox = angular.module('ngCombobox', [])
   .factory('grep', function () {
     //Copied from jquery.grep
     return function (elems, callback, invert) {

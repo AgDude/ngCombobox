@@ -29,7 +29,7 @@
         "jasmine": true,
         "spyOn": true,
         "require": true,
-        "tagsInput": true,
+        "ngCombobox": true,
         "SimplePubSub": true,
         "makeObjectArray": true,
         "findInObjectArray": true,

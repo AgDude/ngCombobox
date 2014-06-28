@@ -29,7 +29,7 @@ module.exports = function (grunt) {
         outMin: 'build/<%= pkg.name %>.min.css'
       },
       html: {
-        src: ['templates/tags-input.html', 'templates/auto-complete.html'],
+        src: ['templates/combobox.html', 'templates/auto-complete.html'],
         out: 'tmp/templates.js'
       },
       zip: {
@@ -92,17 +92,17 @@ module.exports = function (grunt) {
     },
     // Compiles the HTML templates into a Javascript file
     ngtemplates: {
-      ngTagsInput: {
+      ngCombobox: {
         files: {
           '<%= files.html.out %>': ['<%= files.html.src %>']
         },
         options: {
           url: function (url) {
-            return 'ngTagsInput/' + url.replace('templates/', '');
+            return 'ngCombobox/' + url.replace('templates/', '');
           },
           bootstrap: function (module, script) {
             return '/* HTML templates */\n' +
-              'tagsInput.run(function($templateCache) {\n' + script + '});\n';
+              'ngCombobox.run(function($templateCache) {\n' + script + '});\n';
           },
           htmlmin: {
             collapseWhitespace: true,
@@ -203,7 +203,7 @@ module.exports = function (grunt) {
     // Updates the CHANGELOG file
     changelog: {
       options: {
-        github: 'mbenford/ngTagsInput'
+        github: 'agdude/ngCombobox'
       }
     },
     // Fixes CHANGELOG format

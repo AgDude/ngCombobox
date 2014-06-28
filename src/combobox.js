@@ -2,7 +2,7 @@
 
 /**
  * @ngdoc directive
- * @name tagsInput
+ * @name ngCombobox
  * @module ngTagsInput
  *
  * @description
@@ -44,7 +44,7 @@
  *                                               suggestions list.
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
  */
-tagsInput.directive('tagsInput', function ($timeout, $document, $sce, $q, grep, tagsInputConfig) {
+ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, tagsInputConfig) {
   
   function SuggestionList(loadFn, options) {
       var self = {},
@@ -219,9 +219,9 @@ tagsInput.directive('tagsInput', function ($timeout, $document, $sce, $q, grep, 
     },
     replace: false,
     transclude: true,
-    templateUrl: 'ngTagsInput/tags-input.html',
+    templateUrl: 'ngCombobox/combobox.html',
     controller: function ($scope, $attrs, $element) {
-      tagsInputConfig.load('tagsInput', $scope, $attrs, {
+      tagsInputConfig.load('ngCombobox', $scope, $attrs, {
         placeholder: [String, ''],
         tabindex: [Number],
         removeTagSymbol: [String, String.fromCharCode(215)],

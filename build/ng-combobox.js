@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-28 12:19:27 -0500
+ * Generated at 2014-06-28 13:31:27 -0500
  */
 (function() {
 'use strict';
@@ -76,7 +76,7 @@ function replaceAll(str, substr, newSubstr) {
   return str.replace(new RegExp(expression, 'gi'), newSubstr);
 }
 
-var tagsInput = angular.module('ngTagsInput', [])
+var ngCombobox = angular.module('ngCombobox', [])
   .factory('grep', function () {
     //Copied from jquery.grep
     return function (elems, callback, invert) {
@@ -100,7 +100,7 @@ var tagsInput = angular.module('ngTagsInput', [])
 
 /**
  * @ngdoc directive
- * @name tagsInput
+ * @name ngCombobox
  * @module ngTagsInput
  *
  * @description
@@ -142,7 +142,7 @@ var tagsInput = angular.module('ngTagsInput', [])
  *                                               suggestions list.
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
  */
-tagsInput.directive('tagsInput', ["$timeout","$document","$sce","$q","grep","tagsInputConfig", function ($timeout, $document, $sce, $q, grep, tagsInputConfig) {
+ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tagsInputConfig", function ($timeout, $document, $sce, $q, grep, tagsInputConfig) {
   
   function SuggestionList(loadFn, options) {
       var self = {},
@@ -317,9 +317,9 @@ tagsInput.directive('tagsInput', ["$timeout","$document","$sce","$q","grep","tag
     },
     replace: false,
     transclude: true,
-    templateUrl: 'ngTagsInput/tags-input.html',
+    templateUrl: 'ngCombobox/combobox.html',
     controller: ["$scope","$attrs","$element", function ($scope, $attrs, $element) {
-      tagsInputConfig.load('tagsInput', $scope, $attrs, {
+      tagsInputConfig.load('ngCombobox', $scope, $attrs, {
         placeholder: [String, ''],
         tabindex: [Number],
         removeTagSymbol: [String, String.fromCharCode(215)],
@@ -715,9 +715,9 @@ tagsInput.directive('tagsInput', ["$timeout","$document","$sce","$q","grep","tag
  * @module ngTagsInput
  *
  * @description
- * Re-creates the old behavior of ng-transclude. Used internally by tagsInput directive.
+ * Re-creates the old behavior of ng-transclude. Used internally by ngCombobox directive.
  */
-tagsInput.directive('tiTranscludePrepend', function () {
+ngCombobox.directive('tiTranscludePrepend', function () {
   return function (scope, element, attrs, ctrl, transcludeFn) {
     transcludeFn(function (clone) {
       element.prepend(clone);
@@ -731,9 +731,9 @@ tagsInput.directive('tiTranscludePrepend', function () {
  * @module ngTagsInput
  *
  * @description
- * Automatically sets the input's width so its content is always visible. Used internally by tagsInput directive.
+ * Automatically sets the input's width so its content is always visible. Used internally by combobox directive.
  */
-tagsInput.directive('tiAutosize', function () {
+ngCombobox.directive('tiAutosize', function () {
   return {
     restrict: 'A',
     require: 'ngModel',
@@ -791,7 +791,7 @@ tagsInput.directive('tiAutosize', function () {
  * Sets global configuration settings for both tagsInput and autoComplete directives. It's also used internally to parse and
  * initialize options from HTML attributes.
  */
-tagsInput.provider('tagsInputConfig', function () {
+ngCombobox.provider('tagsInputConfig', function () {
   var globalDefaults = {},
     interpolationStatus = {};
 
@@ -876,13 +876,9 @@ tagsInput.provider('tagsInputConfig', function () {
 });
 
 /* HTML templates */
-tagsInput.run(["$templateCache", function($templateCache) {
-    $templateCache.put('ngTagsInput/tags-input.html',
+ngCombobox.run(["$templateCache", function($templateCache) {
+    $templateCache.put('ngCombobox/combobox.html',
     "<div class=\"host\" ng-class=\"{'input-group': options.showAll && source}\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-autosize=\"\"></div><div class=\"autocomplete\" ng-show=\"suggestionList.visible\"><ul class=\"suggestion-list\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by $id(item)\" ng-class=\"{selected: item == suggestionList.selected}\" ng-click=\"addSuggestion()\" ng-mouseenter=\"suggestionList.select($index)\" ng-bind-html=\"highlight(item)\"></li></ul></div><span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
-  );
-
-  $templateCache.put('ngTagsInput/auto-complete.html',
-    "<div class=\"autocomplete\" ng-show=\"suggestionList.visible\"><ul class=\"suggestion-list\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by $id(item)\" ng-class=\"{selected: item == suggestionList.selected}\" ng-click=\"addSuggestion()\" ng-mouseenter=\"suggestionList.select($index)\" ng-bind-html=\"highlight(item)\"></li></ul></div>"
   );
 }]);
 

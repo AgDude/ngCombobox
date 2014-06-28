@@ -1,6 +1,6 @@
 'use strict';
 
-describe('tags-input directive', function () {
+describe('combobox directive', function () {
   var $compile, $scope, $timeout, $document,
     isolateScope, element;
 
@@ -20,7 +20,7 @@ describe('tags-input directive', function () {
   function compile() {
     var options = jQuery.makeArray(arguments)
       .join(' ');
-    var template = '<tags-input ng-model="tags" ' + options + '></tags-input>';
+    var template = '<combobox ng-model="tags" ' + options + '></combobox>';
 
     element = $compile(template)($scope);
     $scope.$digest();
@@ -30,7 +30,7 @@ describe('tags-input directive', function () {
   function compileWithForm() {
     var options = jQuery.makeArray(arguments)
       .join(' ');
-    var template = '<form name="form"><tags-input ng-model="tags" ' + options + '></tags-input></form>';
+    var template = '<form name="form"><combobox ng-model="tags" ' + options + '></combobox></form>';
 
     element = $compile(template)($scope);
     $scope.$digest();
@@ -1303,7 +1303,7 @@ describe('tags-input directive', function () {
 
     beforeEach(function () {
       compile();
-      autocompleteObj = element.controller('tagsInput')
+      autocompleteObj = element.controller('combobox')
         .registerAutocomplete();
     });
 

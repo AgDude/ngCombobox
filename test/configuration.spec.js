@@ -5,7 +5,7 @@ describe('configuration service', function () {
     attrs, provider, service;
 
   beforeEach(function () {
-    module('ngTagsInput', function (tagsInputConfigProvider) {
+    module('ngCombobox', function (tagsInputConfigProvider) {
       provider = tagsInputConfigProvider;
     });
 

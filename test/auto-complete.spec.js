@@ -2,10 +2,10 @@
 
 describe('autoComplete directive', function () {
   var $compile, $scope, $q, $timeout, $document,
-    parentCtrl, element, isolateScope, suggestionList, deferred, tagsInput, eventHandlers;
+    parentCtrl, element, isolateScope, suggestionList, deferred, combobox, eventHandlers;
 
   beforeEach(function () {
-    module('ngTagsInput');
+    module('ngCombobox');
 
     inject(function ($rootScope, _$compile_, _$q_, _$timeout_, _$document_) {
       $scope = $rootScope;
@@ -26,7 +26,7 @@ describe('autoComplete directive', function () {
   function compile() {
     var parent, options;
 
-    tagsInput = {
+    combobox = {
       changeInputValue: jasmine.createSpy(),
       addTag: jasmine.createSpy(),
       focusInput: jasmine.createSpy(),
@@ -46,12 +46,12 @@ describe('autoComplete directive', function () {
         })
       };
 
-    parent = $compile('<tags-input ng-model="whatever"></tags-input>')($scope);
+    parent = $compile('<combobox ng-model="whatever"></combobox>')($scope);
     $scope.$digest();
 
-    parentCtrl = parent.controller('tagsInput');
+    parentCtrl = parent.controller('combobox');
     spyOn(parentCtrl, 'registerAutocomplete')
-      .and.returnValue(tagsInput);
+      .and.returnValue(combobox);
 
     options = jQuery.makeArray(arguments)
       .join(' ');
@@ -119,7 +119,7 @@ describe('autoComplete directive', function () {
   function loadSuggestions(countOrItems, text) {
     var items = angular.isNumber(countOrItems) ? generateSuggestions(countOrItems) : countOrItems;
 
-    suggestionList.load(text || 'foobar', tagsInput.getTags());
+    suggestionList.load(text || 'foobar', combobox.getTags());
     $timeout.flush();
     resolve(items);
   }
@@ -132,7 +132,7 @@ describe('autoComplete directive', function () {
 
     it('renders all elements returned by the load function that aren\'t already added', function () {
       // Act
-      tagsInput.getTags.and.returnValue([{
+      combobox.getTags.and.returnValue([{
         text: 'Item3'
       }]);
       loadSuggestions(3);
@@ -149,7 +149,7 @@ describe('autoComplete directive', function () {
 
     it('renders all elements returned by the load function that aren\'t already added ($http promise)', function () {
       // Act
-      tagsInput.getTags.and.returnValue([{
+      combobox.getTags.and.returnValue([{
         text: 'Item3'
       }]);
       loadSuggestions({
@@ -189,7 +189,7 @@ describe('autoComplete directive', function () {
 
     it('hides the suggestions list when there is no items left to show', function () {
       // Act
-      tagsInput.getTags.and.returnValue([{
+      combobox.getTags.and.returnValue([{
         text: 'Item1'
       }, {
         text: 'Item2'
@@ -299,7 +299,7 @@ describe('autoComplete directive', function () {
       sendKeyDown(KEYS.enter);
 
       // Assert
-      expect(tagsInput.addTag)
+      expect(combobox.addTag)
         .toHaveBeenCalledWith({
           text: 'Item1'
         });
@@ -314,7 +314,7 @@ describe('autoComplete directive', function () {
       sendKeyDown(KEYS.tab);
 
       // Assert
-      expect(tagsInput.addTag)
+      expect(combobox.addTag)
         .toHaveBeenCalledWith({
           text: 'Item1'
         });
@@ -328,7 +328,7 @@ describe('autoComplete directive', function () {
       sendKeyDown(KEYS.enter);
 
       // Assert
-      expect(tagsInput.addTag)
+      expect(combobox.addTag)
         .not.toHaveBeenCalled();
     });
 
@@ -402,13 +402,13 @@ describe('autoComplete directive', function () {
 
       // Act
       // First we need to register all promises
-      suggestionList.load('foobar', tagsInput.getTags());
+      suggestionList.load('foobar', combobox.getTags());
       $timeout.flush();
 
-      suggestionList.load('foobar', tagsInput.getTags());
+      suggestionList.load('foobar', combobox.getTags());
       $timeout.flush();
 
-      suggestionList.load('foobar', tagsInput.getTags());
+      suggestionList.load('foobar', combobox.getTags());
       $timeout.flush();
 
       // Now we resolve each promise which was previously created
@@ -432,7 +432,7 @@ describe('autoComplete directive', function () {
     it('discards all load calls after the suggestion list is reset', function () {
       // Arrange
       spyOn(suggestionList, 'show');
-      suggestionList.load('foobar', tagsInput.getTags());
+      suggestionList.load('foobar', combobox.getTags());
       $timeout.flush();
 
       // Act
@@ -564,7 +564,7 @@ describe('autoComplete directive', function () {
           .click();
 
         // Assert
-        expect(tagsInput.addTag)
+        expect(combobox.addTag)
           .toHaveBeenCalledWith({
             text: 'Item2'
           });
@@ -579,7 +579,7 @@ describe('autoComplete directive', function () {
           .click();
 
         // Assert
-        expect(tagsInput.focusInput)
+        expect(combobox.focusInput)
           .toHaveBeenCalled();
       });
     });

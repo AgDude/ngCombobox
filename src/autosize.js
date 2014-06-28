@@ -6,9 +6,9 @@
  * @module ngTagsInput
  *
  * @description
- * Automatically sets the input's width so its content is always visible. Used internally by tagsInput directive.
+ * Automatically sets the input's width so its content is always visible. Used internally by combobox directive.
  */
-tagsInput.directive('tiAutosize', function () {
+ngCombobox.directive('tiAutosize', function () {
   return {
     restrict: 'A',
     require: 'ngModel',
