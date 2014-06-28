@@ -44,170 +44,8 @@
  *                                               suggestions list.
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
  */
-ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, tagsInputConfig) {
+ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
   
-  function SuggestionList(loadFn, options) {
-      var self = {},
-        debouncedLoadId, getDifference, getMatches, lastPromise;
-
-      getDifference = function (array1, array2) {
-        return array1.filter(function (item) {
-          return !findInObjectArray(array2, item, options.displayProperty);
-        });
-      };
-
-      self.reset = function () {
-        lastPromise = null;
-
-        self.items = [];
-        self.visible = false;
-        self.index = -1;
-        self.selected = null;
-        self.query = null;
-
-        $timeout.cancel(debouncedLoadId);
-      };
-      self.show = function () {
-        self.selected = null;
-        self.visible = true;
-        self.select(0);
-      };
-      self.load = function (query, tags, force) {
-        if (query.length < options.minLength && !force) {
-          self.reset();
-          return;
-        }
-
-        $timeout.cancel(debouncedLoadId);
-        debouncedLoadId = $timeout(function () {
-          self.query = query;
-
-          var promise = loadFn({
-            $query: query
-          });
-          lastPromise = promise;
-
-          promise.then(function (items) {
-            if (promise !== lastPromise) {
-              return;
-            }
-
-            items = makeObjectArray(items.data || items, options.displayProperty);
-            items = getDifference(items, tags);
-            self.items = items.slice(0, options.maxResultsToShow);
-
-            if (self.items.length > 0) {
-              self.show();
-            } else {
-              self.reset();
-            }
-          });
-        }, options.debounceDelay, false);
-      };
-      self.selectNext = function () {
-        self.select(++self.index);
-      };
-      self.selectPrior = function () {
-        self.select(--self.index);
-      };
-      self.select = function (index) {
-        if (index < 0) {
-          index = self.items.length - 1;
-        } else if (index >= self.items.length) {
-          index = 0;
-        }
-        self.index = index;
-        self.selected = self.items[index];
-      };
-
-      self.reset();
-
-      return self;
-    }
-  
-  function encodeHTML(value) {
-    return value.replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-    
-  function TagList(options, events) {
-    var self = {},
-      getTagText, setTagText, tagIsValid;
-
-    getTagText = function (tag) {
-      return tag[options.displayProperty];
-    };
-
-    setTagText = function (tag, text) {
-      tag[options.displayProperty] = text;
-    };
-
-    tagIsValid = function (tag) {
-      var tagText = getTagText(tag);
-
-      return tagText.length >= options.minLength &&
-        tagText.length <= (options.maxLength || tagText.length) &&
-        options.allowedTagsPattern.test(tagText) &&
-        !findInObjectArray(self.items, tag, options.displayProperty);
-    };
-
-    self.items = [];
-
-    self.addText = function (text) {
-      var tag = {};
-      setTagText(tag, text);
-      return self.add(tag);
-    };
-
-    self.add = function (tag) {
-      var tagText = getTagText(tag)
-        .trim();
-
-      if (options.replaceSpacesWithDashes) {
-        tagText = tagText.replace(/\s/g, '-');
-      }
-
-      setTagText(tag, tagText);
-
-      if (tagIsValid(tag)) {
-        self.items.push(tag);
-        events.trigger('tag-added', {
-          $tag: tag
-        });
-      } else {
-        events.trigger('invalid-tag', {
-          $tag: tag
-        });
-      }
-
-      return tag;
-    };
-
-    self.remove = function (index) {
-      var tag = self.items.splice(index, 1)[0];
-      events.trigger('tag-removed', {
-        $tag: tag
-      });
-      return tag;
-    };
-
-    self.removeLast = function () {
-      var tag, lastTagIndex = self.items.length - 1;
-
-      if (options.enableEditingLastTag || self.selected) {
-        self.selected = null;
-        tag = self.remove(lastTagIndex);
-      } else if (!self.selected) {
-        self.selected = self.items[lastTagIndex];
-      }
-
-      return tag;
-    };
-
-    return self;
-  }
-
   return {
     restrict: 'E',
     require: 'ngModel',
@@ -256,22 +94,19 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
       post: function (scope, element, attrs, ngModelCtrl) {
         var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period, KEYS.space, KEYS.comma, KEYS.backspace],
           suggestionList,
-          options,
+          options = scope.options,
           getItemText,
           documentClick,
           sourceFunc,
           tagList = scope.tagList,
           events = scope.events,
-          options = scope.options,
-          input = element.find('input');
-
-
-        var htmlOptions = element.find('option');
+          input = element.find('input'),
+          htmlOptions = element.find('option');
 
         if (htmlOptions.length > 0) {
           var tagsModel = [],
             source = [];
-          if (!ngModelCtrl.$isEmpty()) {
+          if ( !ngModelCtrl.$isEmpty() ) {
             tagsModel = ngModelCtrl.$viewValue;
           }
           angular.forEach(htmlOptions, function (opt, index) {
@@ -289,7 +124,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           scope.source = source;
           ngModelCtrl.$setViewValue(tagsModel);
         };
-
+        
         events
           .on('tag-added', scope.onTagAdded)
           .on('tag-removed', scope.onTagRemoved)
@@ -346,26 +181,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           events.trigger('input-change', scope.newTag.text);
         };
 
-        scope.$watch('tags', function (value) {
-          scope.tags = makeObjectArray(value, options.displayProperty);
-          tagList.items = scope.tags;
-        });
-
-        scope.$watch('tags.length', function (value) {
-          scope.newTag.readonly = value >= options.maxTags;
-          ngModelCtrl.$setValidity('maxTags', angular.isUndefined(options.maxTags) || value <= options.maxTags);
-          ngModelCtrl.$setValidity('minTags', angular.isUndefined(options.minTags) || value >= options.minTags);
-        });
-
-
-        scope.toggleSuggestionList = function () {
-          if (suggestionList.visible) {
-            suggestionList.reset();
-          } else {
-            suggestionList.load(scope.newTag.text, scope.tags, true);
-          }
-        };
-
+        //This function is here so we never end up copying scope.source, since it may be large
         function getMatches($query) {
 
           var term = $query.$query,
@@ -383,6 +199,20 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           deferred.resolve(matched);
           return deferred.promise;
         };
+        
+        scope.$watch('tags', function (value) {
+          scope.tags = makeObjectArray(value, options.displayProperty);
+          tagList.items = scope.tags;
+        });
+
+        scope.$watch('tags.length', function (value) {
+          scope.newTag.readonly = value >= options.maxTags;
+          ngModelCtrl.$setValidity('maxTags', angular.isUndefined(options.maxTags) || value <= options.maxTags);
+          ngModelCtrl.$setValidity('minTags', angular.isUndefined(options.minTags) || value >= options.minTags);
+        });
+
+
+        
 
         if (typeof (scope.source) === 'function') {
           sourceFunc = scope.source;
@@ -397,6 +227,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           return item[options.displayProperty];
         };
 
+        scope.toggleSuggestionList = function () {
+          if (suggestionList.visible) {
+            suggestionList.reset();
+          } else {
+            suggestionList.load(scope.newTag.text, scope.tags, true);
+          }
+        };
+        
         scope.addSuggestion = function () {
           var added = false;
 
@@ -440,13 +278,6 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         input
           .on('keydown', function (e) {
             
-            // // This hack is needed because jqLite doesn't implement stopImmediatePropagation properly.
-            // // I've sent a PR to Angular addressing this issue and hopefully it'll be fixed soon.
-            // // https://github.com/angular/angular.js/pull/4833
-            // if (e.isImmediatePropagationStopped && e.isImmediatePropagationStopped()) {
-              // return;
-            // }
-
             var key = e.keyCode,
               isModifier = e.shiftKey || e.altKey || e.ctrlKey || e.metaKey,
               handled = false,
@@ -501,7 +332,6 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             if (handled) {
               if (scope.tags.length !== scope.options.maxTags || key !== KEYS.tab ){
                 e.preventDefault();
-                // e.stopImmediatePropagation();
               }
               scope.$apply();
             }
@@ -530,66 +360,6 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             });
           });
           
-        // element
-          // .on('tag-added invalid-tag', function () {
-            // suggestionList.reset();
-          // })
-          // .on('input-change', function (value) {
-            // if (value) {
-              // suggestionList.load(value, scope.tags);
-            // } else {
-              // suggestionList.reset();
-            // }
-          // })
-          // .on('input-keydown', function (e) {
-            // var key, handled;
-// 
-            // if (hotkeys.indexOf(e.keyCode) === -1) {
-              // return;
-            // }
-// 
-            // // This hack is needed because jqLite doesn't implement stopImmediatePropagation properly.
-            // // I've sent a PR to Angular addressing this issue and hopefully it'll be fixed soon.
-            // // https://github.com/angular/angular.js/pull/4833
-            // var immediatePropagationStopped = false;
-            // e.stopImmediatePropagation = function () {
-              // immediatePropagationStopped = true;
-              // e.stopPropagation();
-            // };
-            // e.isImmediatePropagationStopped = function () {
-              // return immediatePropagationStopped;
-            // };
-// 
-            // if (suggestionList.visible) {
-              // key = e.keyCode;
-              // handled = false;
-// 
-              // if (key === KEYS.down) {
-                // suggestionList.selectNext();
-                // handled = true;
-              // } else if (key === KEYS.up) {
-                // suggestionList.selectPrior();
-                // handled = true;
-              // } else if (key === KEYS.escape) {
-                // suggestionList.reset();
-                // handled = true;
-              // } else if (scope.addKeys[key]) {
-                // handled = scope.addSuggestion();
-              // }
-// 
-              // if (handled) {
-                // if (scope.tags.length !== scope.options.maxTags || key !== KEYS.tab ){
-                  // e.preventDefault();
-                  // e.stopImmediatePropagation();
-                // }
-                // scope.$apply();
-              // }
-            // }
-          // })
-          // .on('input-blur', function () {
-            // suggestionList.reset();
-          // });
-
         element.find('div')
           .on('click', function () {
             input[0].focus();

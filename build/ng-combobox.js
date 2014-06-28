@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-28 13:31:27 -0500
+ * Generated at 2014-06-28 14:35:01 -0500
  */
 (function() {
 'use strict';
@@ -76,6 +76,8 @@ function replaceAll(str, substr, newSubstr) {
   return str.replace(new RegExp(expression, 'gi'), newSubstr);
 }
 
+
+
 var ngCombobox = angular.module('ngCombobox', [])
   .factory('grep', function () {
     //Copied from jquery.grep
@@ -98,55 +100,11 @@ var ngCombobox = angular.module('ngCombobox', [])
     };
   });
 
-/**
- * @ngdoc directive
- * @name ngCombobox
- * @module ngTagsInput
- *
- * @description
- * Renders an input box with tag editing support.
- *
- * @param {string} ngModel Assignable angular expression to data-bind to.
- * @param {string=} [displayProperty=text] Property to be rendered as the tag label.
- * @param {number=} tabindex Tab order of the control.
- * @param {string=} [placeholder=Add a tag] Placeholder text for the control.
- * @param {number=} [minLength=3] Minimum length for a new tag.
- * @param {number=} maxLength Maximum length allowed for a new tag.
- * @param {number=} minTags Sets minTags validation error key if the number of tags added is less than minTags.
- * @param {number=} maxTags Sets maxTags validation error key if the number of tags added is greater than maxTags.
- * @param {boolean=} [allowLeftoverText=false] Sets leftoverText validation error key if there is any leftover text in
- *                                             the input element when the directive loses focus.
- * @param {string=} [removeTagSymbol=×] Symbol character for the remove tag button.
- * @param {boolean=} [addOnEnter=true] Flag indicating that a new tag will be added on pressing the ENTER key.
- * @param {boolean=} [addOnSpace=false] Flag indicating that a new tag will be added on pressing the SPACE key.
- * @param {boolean=} [addOnComma=true] Flag indicating that a new tag will be added on pressing the COMMA key.
- * @param {boolean=} [addOnBlur=true] Flag indicating that a new tag will be added when the input field loses focus.
- * @param {boolean=} [replaceSpacesWithDashes=true] Flag indicating that spaces will be replaced with dashes.
- * @param {string=} [allowedTagsPattern=.+] Regular expression that determines whether a new tag is valid.
- * @param {boolean=} [enableEditingLastTag=false] Flag indicating that the last tag will be moved back into
- *                                                the new tag input box instead of being removed when the backspace key
- *                                                is pressed and the input box is empty.
- * @param {boolean=} [addFromAutocompleteOnly=false] Flag indicating that only tags coming from the autocomplete list will be allowed.
- *                                                   When this flag is true, addOnEnter, addOnComma, addOnSpace, addOnBlur and
- *                                                   allowLeftoverText values are ignored.
- * @param {expression} onTagAdded Expression to evaluate upon adding a new tag. The new tag is available as $tag.
- * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
- * @param {expression} source Expression to evaluate upon changing the input content. The input value is available as
- *                            $query. The result of the expression must be a promise that eventually resolves to an
- *                            array of strings.
- * @param {number=} [debounceDelay=100] Amount of time, in milliseconds, to wait before evaluating the expression in
- *                                      the source option after the last keystroke.
- * @param {number=} [minLength=3] Minimum number of characters that must be entered before evaluating the expression
- *                                 in the source option.
- * @param {boolean=} [highlightMatchedText=true] Flag indicating that the matched text will be highlighted in the
- *                                               suggestions list.
- * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
- */
-ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tagsInputConfig", function ($timeout, $document, $sce, $q, grep, tagsInputConfig) {
-  
-  function SuggestionList(loadFn, options) {
+// I was going to actually make these services, but I decided to copy and paste for now.
+ngCombobox.factory('SuggestionList',["$timeout","$q", function($timeout, $q){
+  return function(loadFn, options) {
       var self = {},
-        debouncedLoadId, getDifference, getMatches, lastPromise;
+        debouncedLoadId, getDifference, lastPromise;
 
       getDifference = function (array1, array2) {
         return array1.filter(function (item) {
@@ -221,15 +179,17 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
       self.reset();
 
       return self;
-    }
-  
-  function encodeHTML(value) {
+    };
+}])
+.factory('encodeHTML',function(){
+  return function(value) {
     return value.replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
-  }
-    
-  function TagList(options, events) {
+  };
+})
+.factory('TagList',function(){
+  return function(options, events) {
     var self = {},
       getTagText, setTagText, tagIsValid;
 
@@ -304,8 +264,57 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
     };
 
     return self;
-  }
+  };
+});
 
+  
+
+/**
+ * @ngdoc directive
+ * @name ngCombobox
+ * @module ngTagsInput
+ *
+ * @description
+ * Renders an input box with tag editing support.
+ *
+ * @param {string} ngModel Assignable angular expression to data-bind to.
+ * @param {string=} [displayProperty=text] Property to be rendered as the tag label.
+ * @param {number=} tabindex Tab order of the control.
+ * @param {string=} [placeholder=Add a tag] Placeholder text for the control.
+ * @param {number=} [minLength=3] Minimum length for a new tag.
+ * @param {number=} maxLength Maximum length allowed for a new tag.
+ * @param {number=} minTags Sets minTags validation error key if the number of tags added is less than minTags.
+ * @param {number=} maxTags Sets maxTags validation error key if the number of tags added is greater than maxTags.
+ * @param {boolean=} [allowLeftoverText=false] Sets leftoverText validation error key if there is any leftover text in
+ *                                             the input element when the directive loses focus.
+ * @param {string=} [removeTagSymbol=×] Symbol character for the remove tag button.
+ * @param {boolean=} [addOnEnter=true] Flag indicating that a new tag will be added on pressing the ENTER key.
+ * @param {boolean=} [addOnSpace=false] Flag indicating that a new tag will be added on pressing the SPACE key.
+ * @param {boolean=} [addOnComma=true] Flag indicating that a new tag will be added on pressing the COMMA key.
+ * @param {boolean=} [addOnBlur=true] Flag indicating that a new tag will be added when the input field loses focus.
+ * @param {boolean=} [replaceSpacesWithDashes=true] Flag indicating that spaces will be replaced with dashes.
+ * @param {string=} [allowedTagsPattern=.+] Regular expression that determines whether a new tag is valid.
+ * @param {boolean=} [enableEditingLastTag=false] Flag indicating that the last tag will be moved back into
+ *                                                the new tag input box instead of being removed when the backspace key
+ *                                                is pressed and the input box is empty.
+ * @param {boolean=} [addFromAutocompleteOnly=false] Flag indicating that only tags coming from the autocomplete list will be allowed.
+ *                                                   When this flag is true, addOnEnter, addOnComma, addOnSpace, addOnBlur and
+ *                                                   allowLeftoverText values are ignored.
+ * @param {expression} onTagAdded Expression to evaluate upon adding a new tag. The new tag is available as $tag.
+ * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
+ * @param {expression} source Expression to evaluate upon changing the input content. The input value is available as
+ *                            $query. The result of the expression must be a promise that eventually resolves to an
+ *                            array of strings.
+ * @param {number=} [debounceDelay=100] Amount of time, in milliseconds, to wait before evaluating the expression in
+ *                                      the source option after the last keystroke.
+ * @param {number=} [minLength=3] Minimum number of characters that must be entered before evaluating the expression
+ *                                 in the source option.
+ * @param {boolean=} [highlightMatchedText=true] Flag indicating that the matched text will be highlighted in the
+ *                                               suggestions list.
+ * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
+ */
+ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","SuggestionList","TagList","encodeHTML","tagsInputConfig", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
+  
   return {
     restrict: 'E',
     require: 'ngModel',
@@ -351,24 +360,25 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
 
     }],
     link: {
+      pre: function (scope,element, attrs, ngModelCtrl){
+        
+      },
       post: function (scope, element, attrs, ngModelCtrl) {
         var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period, KEYS.space, KEYS.comma, KEYS.backspace],
           suggestionList,
-          options,
+          options = scope.options,
           getItemText,
           documentClick,
           sourceFunc,
           tagList = scope.tagList,
           events = scope.events,
-          options = scope.options,
           input = element.find('input');
-
         var htmlOptions = element.find('option');
 
         if (htmlOptions.length > 0) {
           var tagsModel = [],
             source = [];
-          if (!ngModelCtrl.$isEmpty()) {
+          if ( !ngModelCtrl.$isEmpty() ) {
             tagsModel = ngModelCtrl.$viewValue;
           }
           angular.forEach(htmlOptions, function (opt, index) {
@@ -386,7 +396,6 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
           scope.source = source;
           ngModelCtrl.$setViewValue(tagsModel);
         };
-
         events
           .on('tag-added', scope.onTagAdded)
           .on('tag-removed', scope.onTagRemoved)
@@ -443,25 +452,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
           events.trigger('input-change', scope.newTag.text);
         };
 
-        scope.$watch('tags', function (value) {
-          scope.tags = makeObjectArray(value, options.displayProperty);
-          tagList.items = scope.tags;
-        });
-
-        scope.$watch('tags.length', function (value) {
-          scope.newTag.readonly = value >= options.maxTags;
-          ngModelCtrl.$setValidity('maxTags', angular.isUndefined(options.maxTags) || value <= options.maxTags);
-          ngModelCtrl.$setValidity('minTags', angular.isUndefined(options.minTags) || value >= options.minTags);
-        });
-
-        scope.toggleSuggestionList = function () {
-          if (suggestionList.visible) {
-            suggestionList.reset();
-          } else {
-            suggestionList.load(scope.newTag.text, scope.tags, true);
-          }
-        };
-
+        //This function is here so we never end up copying scope.source, since it may be large
         function getMatches($query) {
 
           var term = $query.$query,
@@ -479,6 +470,17 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
           deferred.resolve(matched);
           return deferred.promise;
         };
+        
+        scope.$watch('tags', function (value) {
+          scope.tags = makeObjectArray(value, options.displayProperty);
+          tagList.items = scope.tags;
+        });
+
+        scope.$watch('tags.length', function (value) {
+          scope.newTag.readonly = value >= options.maxTags;
+          ngModelCtrl.$setValidity('maxTags', angular.isUndefined(options.maxTags) || value <= options.maxTags);
+          ngModelCtrl.$setValidity('minTags', angular.isUndefined(options.minTags) || value >= options.minTags);
+        });
 
         if (typeof (scope.source) === 'function') {
           sourceFunc = scope.source;
@@ -493,6 +495,14 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
           return item[options.displayProperty];
         };
 
+        scope.toggleSuggestionList = function () {
+          if (suggestionList.visible) {
+            suggestionList.reset();
+          } else {
+            suggestionList.load(scope.newTag.text, scope.tags, true);
+          }
+        };
+        
         scope.addSuggestion = function () {
           var added = false;
 
@@ -536,13 +546,6 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
         input
           .on('keydown', function (e) {
             
-            // // This hack is needed because jqLite doesn't implement stopImmediatePropagation properly.
-            // // I've sent a PR to Angular addressing this issue and hopefully it'll be fixed soon.
-            // // https://github.com/angular/angular.js/pull/4833
-            // if (e.isImmediatePropagationStopped && e.isImmediatePropagationStopped()) {
-              // return;
-            // }
-
             var key = e.keyCode,
               isModifier = e.shiftKey || e.altKey || e.ctrlKey || e.metaKey,
               handled = false,
@@ -597,7 +600,6 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
             if (handled) {
               if (scope.tags.length !== scope.options.maxTags || key !== KEYS.tab ){
                 e.preventDefault();
-                // e.stopImmediatePropagation();
               }
               scope.$apply();
             }
@@ -626,66 +628,6 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","tag
             });
           });
           
-        // element
-          // .on('tag-added invalid-tag', function () {
-            // suggestionList.reset();
-          // })
-          // .on('input-change', function (value) {
-            // if (value) {
-              // suggestionList.load(value, scope.tags);
-            // } else {
-              // suggestionList.reset();
-            // }
-          // })
-          // .on('input-keydown', function (e) {
-            // var key, handled;
-// 
-            // if (hotkeys.indexOf(e.keyCode) === -1) {
-              // return;
-            // }
-// 
-            // // This hack is needed because jqLite doesn't implement stopImmediatePropagation properly.
-            // // I've sent a PR to Angular addressing this issue and hopefully it'll be fixed soon.
-            // // https://github.com/angular/angular.js/pull/4833
-            // var immediatePropagationStopped = false;
-            // e.stopImmediatePropagation = function () {
-              // immediatePropagationStopped = true;
-              // e.stopPropagation();
-            // };
-            // e.isImmediatePropagationStopped = function () {
-              // return immediatePropagationStopped;
-            // };
-// 
-            // if (suggestionList.visible) {
-              // key = e.keyCode;
-              // handled = false;
-// 
-              // if (key === KEYS.down) {
-                // suggestionList.selectNext();
-                // handled = true;
-              // } else if (key === KEYS.up) {
-                // suggestionList.selectPrior();
-                // handled = true;
-              // } else if (key === KEYS.escape) {
-                // suggestionList.reset();
-                // handled = true;
-              // } else if (scope.addKeys[key]) {
-                // handled = scope.addSuggestion();
-              // }
-// 
-              // if (handled) {
-                // if (scope.tags.length !== scope.options.maxTags || key !== KEYS.tab ){
-                  // e.preventDefault();
-                  // e.stopImmediatePropagation();
-                // }
-                // scope.$apply();
-              // }
-            // }
-          // })
-          // .on('input-blur', function () {
-            // suggestionList.reset();
-          // });
-
         element.find('div')
           .on('click', function () {
             input[0].focus();
@@ -722,63 +664,6 @@ ngCombobox.directive('tiTranscludePrepend', function () {
     transcludeFn(function (clone) {
       element.prepend(clone);
     });
-  };
-});
-
-/**
- * @ngdoc directive
- * @name tiAutosize
- * @module ngTagsInput
- *
- * @description
- * Automatically sets the input's width so its content is always visible. Used internally by combobox directive.
- */
-ngCombobox.directive('tiAutosize', function () {
-  return {
-    restrict: 'A',
-    require: 'ngModel',
-    link: function (scope, element, attrs, ctrl) {
-      var THRESHOLD = 3,
-        span, resize;
-
-      span = angular.element('<span class="input"></span>');
-      span.css('display', 'none')
-        .css('visibility', 'hidden')
-        .css('width', 'auto')
-        .css('white-space', 'pre');
-
-      element.parent()
-        .append(span);
-
-      resize = function (originalValue) {
-        var value = originalValue,
-          width;
-
-        if (angular.isString(value) && value.length === 0) {
-          value = attrs.placeholder;
-        }
-
-        if (value) {
-          span.text(value);
-          span.css('display', '');
-          width = span.prop('offsetWidth');
-          span.css('display', 'none');
-        }
-
-        element.css('width', width ? width + THRESHOLD + 'px' : '');
-
-        return originalValue;
-      };
-
-      ctrl.$parsers.unshift(resize);
-      ctrl.$formatters.unshift(resize);
-
-      attrs.$observe('placeholder', function (value) {
-        if (!ctrl.$modelValue) {
-          resize(value);
-        }
-      });
-    }
   };
 });
 

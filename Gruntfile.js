@@ -15,9 +15,9 @@ module.exports = function (grunt) {
           'src/keycodes.js',
           'src/util.js',
           'src/init.js',
+          'src/services.js',
           'src/combobox.js',
-          'src/transclude-append.js',
-          'src/autosize.js',
+          'src/transclude-prepend.js',
           'src/configuration.js'
         ],
         out: 'build/<%= pkg.name %>.js',
