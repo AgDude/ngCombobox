@@ -15,8 +15,7 @@ module.exports = function (grunt) {
           'src/keycodes.js',
           'src/util.js',
           'src/init.js',
-          'src/tags-input.js',
-          // 'src/auto-complete.js',
+          'src/combobox.js',
           'src/transclude-append.js',
           'src/autosize.js',
           'src/configuration.js'
