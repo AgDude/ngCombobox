@@ -44,7 +44,7 @@
  *                                               suggestions list.
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
  */
-ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
+ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMatches, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
   
   return {
     restrict: 'E',
@@ -54,6 +54,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
       onTagAdded: '&',
       onTagRemoved: '&',
       source: '=?',
+      secondarySource: '=?',
     },
     replace: false,
     transclude: true,
@@ -98,6 +99,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           getItemText,
           documentClick,
           sourceFunc,
+          secondaryFunc,
           tagList = scope.tagList,
           events = scope.events,
           input = element.find('input'),
@@ -182,23 +184,23 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         };
 
         //This function is here so we never end up copying scope.source, since it may be large
-        function getMatches($query) {
-
-          var term = $query.$query,
-            containsMatcher = new RegExp(term, 'i'),
-            deferred = $q.defer(),
-            matched = grep(scope.source, function (value) {
-              return containsMatcher.test(value.text);
-            });
-          matched.sort(function (a, b) {
-            if (a.text.indexOf(term) === 0 || b.text.indexOf(term) === 0) {
-              return a.text.indexOf(term) - b.text.indexOf(term);
-            }
-            return 0;
-          });
-          deferred.resolve(matched);
-          return deferred.promise;
-        };
+        // function getMatches($query) {
+// 
+          // var term = $query.$query,
+            // containsMatcher = new RegExp(term, 'i'),
+            // deferred = $q.defer(),
+            // matched = grep(scope.source, function (value) {
+              // return containsMatcher.test(value.text);
+            // });
+          // matched.sort(function (a, b) {
+            // if (a.text.indexOf(term) === 0 || b.text.indexOf(term) === 0) {
+              // return a.text.indexOf(term) - b.text.indexOf(term);
+            // }
+            // return 0;
+          // });
+          // deferred.resolve(matched);
+          // return deferred.promise;
+        // };
         
         scope.$watch('tags', function (value) {
           scope.tags = makeObjectArray(value, options.displayProperty);
@@ -217,10 +219,17 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         if (typeof (scope.source) === 'function') {
           sourceFunc = scope.source;
         } else {
-          sourceFunc = getMatches;
+          sourceFunc = getMatches(scope.source);
+        };
+        
+        if (typeof (scope.secondarySource) === 'function') {
+          secondaryFunc = scope.secondarySource;
+        }
+        else if ( scope.secondarySource !== undefined ){
+          secondaryFunc = getMatches(scope.secondarySource);
         };
 
-        suggestionList = new SuggestionList(sourceFunc, options);
+        suggestionList = new SuggestionList(sourceFunc, secondaryFunc, options);
         scope.suggestionList = suggestionList;
 
         getItemText = function (item) {
@@ -330,7 +339,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             }
             
             if (handled) {
-              if (scope.tags.length !== scope.options.maxTags || key !== KEYS.tab ){
+              if (key !== KEYS.tab ){
                 e.preventDefault();
               }
               scope.$apply();

@@ -1,6 +1,6 @@
 // I was going to actually make these services, but I decided to copy and paste for now.
 ngCombobox.factory('SuggestionList',function($timeout, $q){
-  return function(loadFn, options) {
+  return function(primaryFn, secondaryFn, options) {
       var self = {},
         debouncedLoadId, getDifference, lastPromise;
 
@@ -26,7 +26,11 @@ ngCombobox.factory('SuggestionList',function($timeout, $q){
         self.visible = true;
         self.select(0);
       };
-      self.load = function (query, tags, force) {
+      
+      self.load = function (query, tags, force, loadFn) {
+        if ( loadFn == undefined ){
+          loadFn = primaryFn;
+        }
         if (query.length < options.minLength && !force) {
           self.reset();
           return;
@@ -48,6 +52,9 @@ ngCombobox.factory('SuggestionList',function($timeout, $q){
 
             items = makeObjectArray(items.data || items, options.displayProperty);
             items = getDifference(items, tags);
+            if ( secondaryFn && items.length === 0 &&  loadFn === primaryFn){
+              return self.load(query, tags, force, secondaryFn);
+            }
             self.items = items.slice(0, options.maxResultsToShow);
 
             if (self.items.length > 0) {
@@ -58,9 +65,11 @@ ngCombobox.factory('SuggestionList',function($timeout, $q){
           });
         }, options.debounceDelay, false);
       };
+      
       self.selectNext = function () {
         self.select(++self.index);
       };
+      
       self.selectPrior = function () {
         self.select(--self.index);
       };
@@ -162,6 +171,26 @@ ngCombobox.factory('SuggestionList',function($timeout, $q){
     };
 
     return self;
+  };
+})
+.factory('getMatches', function($q, grep){
+  return function(source){
+      return function($query) {
+        var term = $query.$query,
+          containsMatcher = new RegExp(term, 'i'),
+          deferred = $q.defer(),
+          matched = grep(source, function (value) {
+            return containsMatcher.test(value.text);
+          });
+        matched.sort(function (a, b) {
+          if (a.text.indexOf(term) === 0 || b.text.indexOf(term) === 0) {
+            return a.text.indexOf(term) - b.text.indexOf(term);
+          }
+          return 0;
+        });
+        deferred.resolve(matched);
+        return deferred.promise;
+    };
   };
 });
 
