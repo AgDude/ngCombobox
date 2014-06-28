@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-28 15:03:02 -0500
+ * Generated at 2014-06-28 17:42:52 -0500
  */
 (function() {
 'use strict';
@@ -101,10 +101,10 @@ var ngCombobox = angular.module('ngCombobox', [])
   });
 
 // I was going to actually make these services, but I decided to copy and paste for now.
-ngCombobox.factory('SuggestionList',["$timeout","$q", function($timeout, $q){
+ngCombobox.factory('SuggestionList',["$timeout","$interval","$q", function($timeout, $interval, $q){
   return function(primaryFn, secondaryFn, options) {
       var self = {},
-        debouncedLoadId, getDifference, lastPromise;
+        debouncedLoadId,loadingInterval, getDifference, lastPromise;
 
       getDifference = function (array1, array2) {
         return array1.filter(function (item) {
@@ -117,25 +117,44 @@ ngCombobox.factory('SuggestionList',["$timeout","$q", function($timeout, $q){
 
         self.items = [];
         self.visible = false;
+        self.loading = false;
         self.index = -1;
         self.selected = null;
         self.query = null;
 
         $timeout.cancel(debouncedLoadId);
+        $interval.cancel(loadingInterval)
       };
       self.show = function () {
         self.selected = null;
         self.visible = true;
+        self.loading = false;
         self.select(0);
       };
       
+      self.loadingFn = function(msg){
+        var count = 0;
+        loadingInterval = $interval(function(){
+          count ++;
+          var dots = new Array(count % 6).join('.');
+          self.msg = msg + dots;
+        }, 250);
+      };
+      
       self.load = function (query, tags, force, loadFn) {
-        if ( loadFn == undefined ){
-          loadFn = primaryFn;
-        }
         if (query.length < options.minLength && !force) {
           self.reset();
           return;
+        }
+        
+        if ( loadFn == undefined ){
+          loadFn = primaryFn;
+        }
+        
+        $interval.cancel(loadingInterval)
+        self.msg = angular.copy(options.loadingMsg);
+        if ( loadFn == secondaryFn ){
+          self.msg = angular.copy(options.secondaryMsg);
         }
 
         $timeout.cancel(debouncedLoadId);
@@ -145,6 +164,10 @@ ngCombobox.factory('SuggestionList',["$timeout","$q", function($timeout, $q){
           var promise = loadFn({
             $query: query
           });
+          if ( self.msg ){
+            self.loadingFn(self.msg);
+            $timeout(function(){self.loading = true;});
+          };
           lastPromise = promise;
 
           promise.then(function (items) {
@@ -155,6 +178,7 @@ ngCombobox.factory('SuggestionList',["$timeout","$q", function($timeout, $q){
             items = makeObjectArray(items.data || items, options.displayProperty);
             items = getDifference(items, tags);
             if ( secondaryFn && items.length === 0 &&  loadFn === primaryFn){
+              self.visible = false;
               return self.load(query, tags, force, secondaryFn);
             }
             self.items = items.slice(0, options.maxResultsToShow);
@@ -222,8 +246,12 @@ ngCombobox.factory('SuggestionList',["$timeout","$q", function($timeout, $q){
     self.items = [];
 
     self.addText = function (text) {
+      if ( !text ){
+        return;
+      }
       var tag = {};
       setTagText(tag, text);
+      events.trigger('new-tag-added', tag);
       return self.add(tag);
     };
 
@@ -300,8 +328,8 @@ ngCombobox.factory('SuggestionList',["$timeout","$q", function($timeout, $q){
 
 /**
  * @ngdoc directive
- * @name ngCombobox
- * @module ngTagsInput
+ * @name combobox
+ * @module ngComboBox
  *
  * @description
  * Renders an input box with tag editing support.
@@ -326,14 +354,18 @@ ngCombobox.factory('SuggestionList',["$timeout","$q", function($timeout, $q){
  * @param {boolean=} [enableEditingLastTag=false] Flag indicating that the last tag will be moved back into
  *                                                the new tag input box instead of being removed when the backspace key
  *                                                is pressed and the input box is empty.
- * @param {boolean=} [addFromAutocompleteOnly=false] Flag indicating that only tags coming from the autocomplete list will be allowed.
+ * @param {boolean=} [addFromAutocompleteOnly=true] Flag indicating that only tags coming from the autocomplete list will be allowed.
  *                                                   When this flag is true, addOnEnter, addOnComma, addOnSpace, addOnBlur and
  *                                                   allowLeftoverText values are ignored.
  * @param {expression} onTagAdded Expression to evaluate upon adding a new tag. The new tag is available as $tag.
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
+ * @param {expression} onNewTagAdded Function to evaluate upon adding a new tag not in the suggestion list. 
+ *                            The new tag will be passed as the only agrument and will only have a single property ('text').
+ *                            This should always be a function which returns a promise, if the promise object with property 'data', that data will replace the new tag.
  * @param {expression} source Expression to evaluate upon changing the input content. The input value is available as
  *                            $query. The result of the expression must be a promise that eventually resolves to an
  *                            array of strings.
+ * @param {expression} secondarySource Expression to use if source returns zero items.
  * @param {number=} [debounceDelay=100] Amount of time, in milliseconds, to wait before evaluating the expression in
  *                                      the source option after the last keystroke.
  * @param {number=} [minLength=3] Minimum number of characters that must be entered before evaluating the expression
@@ -341,6 +373,9 @@ ngCombobox.factory('SuggestionList',["$timeout","$q", function($timeout, $q){
  * @param {boolean=} [highlightMatchedText=true] Flag indicating that the matched text will be highlighted in the
  *                                               suggestions list.
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
+ * @param {string=} [loadingMsg=None] A message to be displayed while asynchronous results load.
+ * @param {string=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
+ * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  */
 ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","getMatches","SuggestionList","TagList","encodeHTML","tagsInputConfig", function ($timeout, $document, $sce, $q, getMatches, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
   
@@ -351,6 +386,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","getMatches
       tags: '=ngModel',
       onTagAdded: '&',
       onTagRemoved: '&',
+      newTagAdded: '=?',
       source: '=?',
       secondarySource: '=?',
     },
@@ -383,6 +419,9 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","getMatches
         minSearchLength: [Number, 3],
         highlightMatchedText: [Boolean, true],
         maxResultsToShow: [Number, 10],
+        loadingMsg: [String, ''],
+        secondaryMsg: [String, ''],
+        savingMsg: [String, ''],
       });
 
       $scope.events = new SimplePubSub();
@@ -425,6 +464,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","getMatches
           ngModelCtrl.$setViewValue(tagsModel);
         };
         
+        
         events
           .on('tag-added', scope.onTagAdded)
           .on('tag-removed', scope.onTagRemoved)
@@ -461,6 +501,23 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","getMatches
 
               ngModelCtrl.$setValidity('leftoverText', options.allowLeftoverText ? true : !scope.newTag.text);
             }
+          })
+          .on('new-tag-added', function(tag){
+            if ( scope.newTagAdded === undefined){
+              return;
+            }
+            if ( options.savingMsg ){
+              suggestionList.newSaving = true;
+            }
+            scope.newTagAdded(tag).then(function(result){
+              if ( result.hasOwnProperty('data') ){
+                for ( var prop in result.data ){
+                  tag[prop] = result.data[prop];
+                }
+              }
+            })["finally"](function(){
+              suggestionList.newSaving = false;
+            });
           });
 
         scope.newTag = {
@@ -480,25 +537,6 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","getMatches
         scope.newTagChange = function () {
           events.trigger('input-change', scope.newTag.text);
         };
-
-        //This function is here so we never end up copying scope.source, since it may be large
-        // function getMatches($query) {
-// 
-          // var term = $query.$query,
-            // containsMatcher = new RegExp(term, 'i'),
-            // deferred = $q.defer(),
-            // matched = grep(scope.source, function (value) {
-              // return containsMatcher.test(value.text);
-            // });
-          // matched.sort(function (a, b) {
-            // if (a.text.indexOf(term) === 0 || b.text.indexOf(term) === 0) {
-              // return a.text.indexOf(term) - b.text.indexOf(term);
-            // }
-            // return 0;
-          // });
-          // deferred.resolve(matched);
-          // return deferred.promise;
-        // };
         
         scope.$watch('tags', function (value) {
           scope.tags = makeObjectArray(value, options.displayProperty);
@@ -799,7 +837,7 @@ ngCombobox.provider('tagsInputConfig', function () {
 /* HTML templates */
 ngCombobox.run(["$templateCache", function($templateCache) {
     $templateCache.put('ngCombobox/combobox.html',
-    "<div class=\"host\" ng-class=\"{'input-group': options.showAll && source}\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-autosize=\"\"></div><div class=\"autocomplete\" ng-show=\"suggestionList.visible\"><ul class=\"suggestion-list\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by $id(item)\" ng-class=\"{selected: item == suggestionList.selected}\" ng-click=\"addSuggestion()\" ng-mouseenter=\"suggestionList.select($index)\" ng-bind-html=\"highlight(item)\"></li></ul></div><span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
+    "<div class=\"host\" ng-class=\"{'input-group': options.showAll && source}\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-autosize=\"\"></div><div class=\"autocomplete\" ng-show=\"!suggestionList.visible && suggestionList.newSaving\"><ul class=\"suggestion-list\"><li class=\"suggestion-item\">{{ options.savingMsg }}</li></ul></div><div class=\"autocomplete\" ng-show=\"!suggestionList.visible && suggestionList.loading\"><ul class=\"suggestion-list\"><li class=\"suggestion-item\">{{ suggestionList.msg }}</li></ul></div><div class=\"autocomplete\" ng-show=\"suggestionList.visible\"><ul class=\"suggestion-list\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by $id(item)\" ng-class=\"{selected: item == suggestionList.selected}\" ng-click=\"addSuggestion()\" ng-mouseenter=\"suggestionList.select($index)\" ng-bind-html=\"highlight(item)\"></li></ul></div><span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
   );
 }]);
 

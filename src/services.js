@@ -49,9 +49,10 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
           loadFn = primaryFn;
         }
         
-        self.msg = options.loadingMsg;
+        $interval.cancel(loadingInterval)
+        self.msg = angular.copy(options.loadingMsg);
         if ( loadFn == secondaryFn ){
-          self.msg = options.secondaryMsg;
+          self.msg = angular.copy(options.secondaryMsg);
         }
 
         $timeout.cancel(debouncedLoadId);
@@ -143,8 +144,12 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
     self.items = [];
 
     self.addText = function (text) {
+      if ( !text ){
+        return;
+      }
       var tag = {};
       setTagText(tag, text);
+      events.trigger('new-tag-added', tag);
       return self.add(tag);
     };
 

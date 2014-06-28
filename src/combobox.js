@@ -28,11 +28,14 @@
  * @param {boolean=} [enableEditingLastTag=false] Flag indicating that the last tag will be moved back into
  *                                                the new tag input box instead of being removed when the backspace key
  *                                                is pressed and the input box is empty.
- * @param {boolean=} [addFromAutocompleteOnly=false] Flag indicating that only tags coming from the autocomplete list will be allowed.
+ * @param {boolean=} [addFromAutocompleteOnly=true] Flag indicating that only tags coming from the autocomplete list will be allowed.
  *                                                   When this flag is true, addOnEnter, addOnComma, addOnSpace, addOnBlur and
  *                                                   allowLeftoverText values are ignored.
  * @param {expression} onTagAdded Expression to evaluate upon adding a new tag. The new tag is available as $tag.
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
+ * @param {expression} onNewTagAdded Function to evaluate upon adding a new tag not in the suggestion list. 
+ *                            The new tag will be passed as the only agrument and will only have a single property ('text').
+ *                            This should always be a function which returns a promise, if the promise object with property 'data', that data will replace the new tag.
  * @param {expression} source Expression to evaluate upon changing the input content. The input value is available as
  *                            $query. The result of the expression must be a promise that eventually resolves to an
  *                            array of strings.
@@ -45,7 +48,8 @@
  *                                               suggestions list.
  * @param {number=} [maxResultsToShow=10] Maximum number of results to be displayed at a time.
  * @param {string=} [loadingMsg=None] A message to be displayed while asynchronous results load.
- * @param {stiring=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
+ * @param {string=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
+ * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  */
 ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMatches, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
   
@@ -56,6 +60,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
       tags: '=ngModel',
       onTagAdded: '&',
       onTagRemoved: '&',
+      newTagAdded: '=?',
       source: '=?',
       secondarySource: '=?',
     },
@@ -90,6 +95,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
         maxResultsToShow: [Number, 10],
         loadingMsg: [String, ''],
         secondaryMsg: [String, ''],
+        savingMsg: [String, ''],
       });
 
       $scope.events = new SimplePubSub();
@@ -132,6 +138,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
           ngModelCtrl.$setViewValue(tagsModel);
         };
         
+        
         events
           .on('tag-added', scope.onTagAdded)
           .on('tag-removed', scope.onTagRemoved)
@@ -168,6 +175,23 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
 
               ngModelCtrl.$setValidity('leftoverText', options.allowLeftoverText ? true : !scope.newTag.text);
             }
+          })
+          .on('new-tag-added', function(tag){
+            if ( scope.newTagAdded === undefined){
+              return;
+            }
+            if ( options.savingMsg ){
+              suggestionList.newSaving = true;
+            }
+            scope.newTagAdded(tag).then(function(result){
+              if ( result.hasOwnProperty('data') ){
+                for ( var prop in result.data ){
+                  tag[prop] = result.data[prop];
+                }
+              }
+            })["finally"](function(){
+              suggestionList.newSaving = false;
+            });
           });
 
         scope.newTag = {
@@ -187,25 +211,6 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
         scope.newTagChange = function () {
           events.trigger('input-change', scope.newTag.text);
         };
-
-        //This function is here so we never end up copying scope.source, since it may be large
-        // function getMatches($query) {
-// 
-          // var term = $query.$query,
-            // containsMatcher = new RegExp(term, 'i'),
-            // deferred = $q.defer(),
-            // matched = grep(scope.source, function (value) {
-              // return containsMatcher.test(value.text);
-            // });
-          // matched.sort(function (a, b) {
-            // if (a.text.indexOf(term) === 0 || b.text.indexOf(term) === 0) {
-              // return a.text.indexOf(term) - b.text.indexOf(term);
-            // }
-            // return 0;
-          // });
-          // deferred.resolve(matched);
-          // return deferred.promise;
-        // };
         
         scope.$watch('tags', function (value) {
           scope.tags = makeObjectArray(value, options.displayProperty);
@@ -217,9 +222,6 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
           ngModelCtrl.$setValidity('maxTags', angular.isUndefined(options.maxTags) || value <= options.maxTags);
           ngModelCtrl.$setValidity('minTags', angular.isUndefined(options.minTags) || value >= options.minTags);
         });
-
-
-        
 
         if (typeof (scope.source) === 'function') {
           sourceFunc = scope.source;
