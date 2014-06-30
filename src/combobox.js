@@ -52,7 +52,7 @@
  * @param {string=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  */
-ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMatches, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
+ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
   
   return {
     restrict: 'E',
@@ -228,14 +228,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
         if (typeof (scope.source) === 'function') {
           sourceFunc = scope.source;
         } else {
-          sourceFunc = getMatches(scope.source);
+          sourceFunc = getMatches('source');
         };
         
         if (typeof (scope.secondarySource) === 'function') {
           secondaryFunc = scope.secondarySource;
         }
         else if ( scope.secondarySource !== undefined ){
-          secondaryFunc = getMatches(scope.secondarySource);
+          secondaryFunc = getMatches('secondarySource');
         };
 
         suggestionList = new SuggestionList(sourceFunc, secondaryFunc, options);
@@ -395,7 +395,26 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, getMat
         scope.$on('$destroy', function () {
           $document.off('click', documentClick);
         });
-
+    
+        function getMatches(sourceProp){
+          return function getMatches($query) {
+              var term = $query.$query,
+                containsMatcher = new RegExp(term, 'i'),
+                deferred = $q.defer(),
+                matched = grep(scope[sourceProp], function (value) {
+                  return containsMatcher.test(value.text);
+                });
+              matched.sort(function (a, b) {
+                if (a.text.indexOf(term) === 0 || b.text.indexOf(term) === 0) {
+                  return a.text.indexOf(term) - b.text.indexOf(term);
+                }
+                return 0;
+              });
+              deferred.resolve(matched);
+              return deferred.promise;
+          };
+        };
+    
       }
     }
   };

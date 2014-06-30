@@ -1,4 +1,3 @@
-// I was going to actually make these services, but I decided to copy and paste for now.
 ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
   return function(primaryFn, secondaryFn, options) {
       var self = {},
@@ -21,7 +20,7 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
         self.query = null;
 
         $timeout.cancel(debouncedLoadId);
-        $interval.cancel(loadingInterval)
+        $interval.cancel(loadingInterval);
       };
       self.show = function () {
         self.selected = null;
@@ -49,7 +48,7 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
           loadFn = primaryFn;
         }
         
-        $interval.cancel(loadingInterval)
+        $interval.cancel(loadingInterval);
         self.msg = angular.copy(options.loadingMsg);
         if ( loadFn == secondaryFn ){
           self.msg = angular.copy(options.secondaryMsg);
@@ -79,7 +78,7 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
               self.visible = false;
               return self.load(query, tags, force, secondaryFn);
             }
-            self.more = Math.max(0,items.length - options.maxResultsToShow)
+            self.more = Math.max(0,items.length - options.maxResultsToShow);
             self.items = items.slice(0, options.maxResultsToShow);
 
             if (self.items.length > 0) {
@@ -200,26 +199,6 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
     };
 
     return self;
-  };
-})
-.factory('getMatches', function($q, grep){
-  return function(source){
-      return function($query) {
-        var term = $query.$query,
-          containsMatcher = new RegExp(term, 'i'),
-          deferred = $q.defer(),
-          matched = grep(source, function (value) {
-            return containsMatcher.test(value.text);
-          });
-        matched.sort(function (a, b) {
-          if (a.text.indexOf(term) === 0 || b.text.indexOf(term) === 0) {
-            return a.text.indexOf(term) - b.text.indexOf(term);
-          }
-          return 0;
-        });
-        deferred.resolve(matched);
-        return deferred.promise;
-    };
   };
 });
 
