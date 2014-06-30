@@ -146,6 +146,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           .on('tag-removed', scope.onTagRemoved)
           .on('tag-added', function () {
             scope.newTag.text = '';
+            input.removeAttr('placeholder');
           })
           .on('tag-added tag-removed', function () {
             ngModelCtrl.$setViewValue(scope.tags);
