@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-30 05:22:34 -0500
+ * Generated at 2014-06-30 13:16:26 -0500
  */
 (function() {
 'use strict';
@@ -452,6 +452,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           .on('tag-removed', scope.onTagRemoved)
           .on('tag-added', function () {
             scope.newTag.text = '';
+            input.removeAttr('placeholder');
           })
           .on('tag-added tag-removed', function () {
             ngModelCtrl.$setViewValue(scope.tags);
@@ -624,6 +625,10 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
               } else if (scope.addKeys[key]) {
                 handled = scope.addSuggestion();
               }
+            }
+            else if (key === KEYS.down) {
+              scope.toggleSuggestionList();
+              handled = true;
             }
 
             shouldAdd = !options.addFromAutocompleteOnly && addKeys[key];

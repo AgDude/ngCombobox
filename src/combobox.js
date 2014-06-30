@@ -320,6 +320,10 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
                 handled = scope.addSuggestion();
               }
             }
+            else if (key === KEYS.down) {
+              scope.toggleSuggestionList();
+              handled = true;
+            }
 
             shouldAdd = !options.addFromAutocompleteOnly && addKeys[key];
             shouldRemove = !shouldAdd && key === KEYS.backspace && scope.newTag.text.length === 0;
