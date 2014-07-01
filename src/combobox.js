@@ -36,7 +36,7 @@
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
  * @param {expression} onNewTagAdded Function to evaluate upon adding a new tag not in the suggestion list. 
  *                            The new tag will be passed as the only agrument and will only have a single property ('text').
- *                            This should always be a function which returns a promise, if the promise object with property 'data', that data will replace the new tag.
+ *                            This should always be a function which returns a promise, if the promise reslove object with property 'data', that data will replace the new tag.
  * @param {expression} source Expression to evaluate upon changing the input content. The input value is available as
  *                            $query. The result of the expression must be a promise that eventually resolves to an
  *                            array of strings.

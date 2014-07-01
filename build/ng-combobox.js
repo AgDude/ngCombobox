@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-06-30 13:16:26 -0500
+ * Generated at 2014-07-01 06:12:37 -0500
  */
 (function() {
 'use strict';
@@ -181,6 +181,9 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q", function($time
               return self.load(query, tags, force, secondaryFn);
             }
             self.more = Math.max(0,items.length - options.maxResultsToShow);
+            if ( self.more > 100 ){
+              self.more = 'many';
+            }
             self.items = items.slice(0, options.maxResultsToShow);
 
             if (self.items.length > 0) {
