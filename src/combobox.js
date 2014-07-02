@@ -29,12 +29,14 @@
  * @param {boolean=} [enableEditingLastTag=false] Flag indicating that the last tag will be moved back into
  *                                                the new tag input box instead of being removed when the backspace key
  *                                                is pressed and the input box is empty.
- * @param {boolean=} [addFromAutocompleteOnly=true] Flag indicating that only tags coming from the autocomplete list will be allowed.
+ * @param {boolean=} [allowNew=false] Flag indicating that only tags coming from the autocomplete list will be allowed.
  *                                                   When this flag is true, addOnEnter, addOnComma, addOnSpace, addOnBlur and
  *                                                   allowLeftoverText values are ignored.
+ * @param {boolean=} [confirmNew=True] This is only used when addFrom AutocompleteOnly is false. If true, the user 
+ *                                      will be presented with a message to confirm before adding a new tag.
  * @param {expression} onTagAdded Expression to evaluate upon adding a new tag. The new tag is available as $tag.
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
- * @param {expression} onNewTagAdded Function to evaluate upon adding a new tag not in the suggestion list. 
+ * @param {expression} NewTagAdded Function to evaluate upon adding a new tag not in the suggestion list. 
  *                            The new tag will be passed as the only agrument and will only have a single property ('text').
  *                            This should always be a function which returns a promise, if the promise reslove object with property 'data', that data will replace the new tag.
  * @param {expression} source Expression to evaluate upon changing the input content. The input value is available as
@@ -79,7 +81,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         showTotal: [Boolean, true],
         addOnEnter: [Boolean, true],
         addOnTab: [Boolean, true],
-        addOnSpace: [Boolean, true],
+        addOnSpace: [Boolean, false],
         addOnComma: [Boolean, true],
         addOnPeriod: [Boolean, true],
         addOnBlur: [Boolean, true],
@@ -89,7 +91,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         maxTags: [Number],
         displayProperty: [String, 'text'],
         allowLeftoverText: [Boolean, false],
-        addFromAutocompleteOnly: [Boolean, true],
+        allowNew: [Boolean, false],
+        confirmNew: [Boolean, true],
         showAll: [Boolean, true],
         debounceDelay: [Number, 100],
         minSearchLength: [Number, 3],
@@ -171,8 +174,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             ngModelCtrl.$setValidity('leftoverText', true);
           })
           .on('input-blur', function () {
-            if (!options.addFromAutocompleteOnly) {
-              if (options.addOnBlur) {
+            if ( options.allowNew && !options.confirmNew ) {
+              if ( options.addOnBlur ) {
                 tagList.addText(scope.newTag.text);
               }
 
@@ -183,10 +186,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             if ( scope.newTagAdded === undefined){
               return;
             }
+            suggestionList.confirm = false;
             if ( options.savingMsg ){
               suggestionList.newSaving = true;
             }
             scope.newTagAdded(tag).then(function(result){
+              if ( result === undefined){
+                return;
+              }
               if ( result.hasOwnProperty('data') ){
                 for ( var prop in result.data ){
                   tag[prop] = result.data[prop];
@@ -207,10 +214,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           return tag[options.displayProperty].trim();
         };
 
+        scope.addNewTag = function(){
+          tagList.addText(scope.newTag.text);
+        };
+        
         scope.track = function (tag) {
           return tag[options.displayProperty];
         };
-
+        
         scope.newTagChange = function () {
           events.trigger('input-change', scope.newTag.text);
         };
@@ -325,9 +336,9 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
               handled = true;
             }
 
-            shouldAdd = !options.addFromAutocompleteOnly && addKeys[key];
+            shouldAdd = options.allowNew && addKeys[key] && !options.confirmNew;
             shouldRemove = !shouldAdd && key === KEYS.backspace && scope.newTag.text.length === 0;
-            shouldBlock = options.addFromAutocompleteOnly && scope.newTag.invalid && addKeys[key];
+            shouldBlock = !options.allowNew && scope.newTag.invalid && addKeys[key];
 
             if (shouldAdd) {
               tagList.addText(scope.newTag.text);

@@ -1,7 +1,7 @@
-ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
+ngCombobox.factory('SuggestionList',function($timeout, $interval, $q, $sce){
   return function(primaryFn, secondaryFn, options) {
       var self = {},
-        debouncedLoadId,loadingInterval, getDifference, lastPromise;
+        debounceDelay,debouncedLoadId,loadingInterval, getDifference, lastPromise;
 
       getDifference = function (array1, array2) {
         return array1.filter(function (item) {
@@ -11,10 +11,12 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
 
       self.reset = function () {
         lastPromise = null;
+        debounceDelay = options.debounceDelay;
 
         self.items = [];
         self.visible = false;
         self.loading = false;
+        self.confirm = false;
         self.index = -1;
         self.selected = null;
         self.query = null;
@@ -27,6 +29,10 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
         self.visible = true;
         self.loading = false;
         self.select(0);
+      };
+      
+      self.msgVisible = function(){
+        return (self.confirm || self.newSaving || self.loading) && !self.visible;
       };
       
       self.loadingFn = function(msg){
@@ -88,9 +94,13 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q){
               self.show();
             } else {
               self.reset();
+              if ( options.allowNew && options.confirmNew){
+                self.confirm = query + ' not found. Click to create it';
+                debounceDelay = 0;
+              }
             }
           });
-        }, options.debounceDelay, false);
+        }, debounceDelay, false);
       };
       
       self.selectNext = function () {

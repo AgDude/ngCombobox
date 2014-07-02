@@ -1180,7 +1180,7 @@ describe('combobox directive', function () {
       compile();
 
       // Assert
-      expect(isolateScope.options.addFromAutocompleteOnly)
+      expect(isolateScope.options.allowNew)
         .toBe(false);
     });
 

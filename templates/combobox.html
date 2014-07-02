@@ -17,18 +17,15 @@
            ng-class="{'invalid-tag': newTag.invalid}"
            ti-autosize>
   </div>
-  <div class="autocomplete" ng-show="!suggestionList.visible && suggestionList.newSaving"> 
-    <ul class="suggestion-list">
-      <li class="suggestion-item">{{ options.savingMsg }}</li>
+  <div class="autocomplete" ng-show="suggestionList.visible || suggestionList.msgVisible()">
+    <!-- Messages --> 
+    <ul class="suggestion-list" ng-hide="suggestionList.visible">
+      <li class="suggestion-item" ng-click="addNewTag()" ng-show="suggestionList.confirm">{{ suggestionList.confirm }}</li>
+      <li class="suggestion-item" ng-show="suggestionList.newSaving">{{ options.savingMsg }}</li>
+      <li class="suggestion-item" ng-show="suggestionList.loading && !suggestionList.confirm">{{ suggestionList.msg }}</li>
     </ul>
-  </div>
-  <div class="autocomplete" ng-show="!suggestionList.visible && suggestionList.loading"> 
-    <ul class="suggestion-list">
-      <li class="suggestion-item">{{ suggestionList.msg }}</li>
-    </ul>
-  </div>
-  <div class="autocomplete" ng-show="suggestionList.visible"> 
-    <ul class="suggestion-list">
+    <!-- Actual Suggestions -->
+    <ul class="suggestion-list" ng-show="suggestionList.visible">
       <li class="suggestion-item"
         ng-repeat="item in suggestionList.items track by $id(item)"
         ng-class="{selected: item == suggestionList.selected}"
