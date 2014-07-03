@@ -148,6 +148,9 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
               .remove();
           });
           scope.source = source;
+          if ( tagsModel.length > 0){
+            options.placeholder = '';
+          }
           ngModelCtrl.$setViewValue(tagsModel);
         }
         else if ( attrs.hasOwnProperty('value') ){
@@ -172,11 +175,11 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           };
           if ( scope.source.length === 0 ){
             var listener;
-            attrs.placeholder = 'Loading Initial Data...';
+            options.placeholder = 'Loading Initial Data...';
             listener = scope.$watch('source', function(newVal,oldVal){
               if (newVal.length > 0){
                 setInitialData();
-                element.removeAttr('placeholder');
+                input.removeAttr('placeholder');
                 listener();
               }
             });
