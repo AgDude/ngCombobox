@@ -20,13 +20,17 @@ combobox {
       border-color: $tags-border-focus;
       @include box-shadow($tags-outline-box-shadow);
     }
+    
+    &.disabled {
+      background: $tags-disabled-bgcolor;
+    }
 
     .tag-list {
       margin: 0;
       padding: 0;
       list-style-type: none;
     }
-
+    
     .tag-item {
       margin: 2px;
       padding: 0 5px;

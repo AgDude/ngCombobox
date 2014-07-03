@@ -1,9 +1,9 @@
 <div class="host" ng-class="{'input-group': options.showAll && source}" tabindex="-1" ti-transclude-prepend>
-  <div class="tags" ng-class="{focused: hasFocus}">
+  <div class="tags" ng-class="{'focused': hasFocus, 'disabled':isDisabled()}">
     <ul class="tag-list">
       <li class="tag-item" ng-repeat="tag in tagList.items track by $id(tag)" ng-class="{ selected: tag == tagList.selected }">
         <span>{{getDisplayText(tag)}}</span>
-        <a class="remove-button" ng-click="tagList.remove($index)">{{options.removeTagSymbol}}</a>
+        <a class="remove-button" ng-click="removeTag($index)">{{options.removeTagSymbol}}</a>
       </li>
     </ul>
     <input type="text"
@@ -15,6 +15,7 @@
            ng-change="newTagChange()"
            ng-trim="false"
            ng-class="{'invalid-tag': newTag.invalid}"
+           ng-disabled="isDisabled()"
            ti-autosize>
   </div>
   <div class="autocomplete" ng-show="suggestionList.visible || suggestionList.msgVisible()">
