@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-03 12:26:08 -0500
+ * Generated at 2014-07-03 17:01:35 -0500
  */
 (function() {
 'use strict';
@@ -411,6 +411,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         minTags: [Number],
         maxTags: [Number],
         displayProperty: [String, 'text'],
+        valueProperty: [String, 'value'],
         allowLeftoverText: [Boolean, false],
         allowNew: [Boolean, false],
         confirmNew: [Boolean, true],
@@ -467,6 +468,40 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           });
           scope.source = source;
           ngModelCtrl.$setViewValue(tagsModel);
+        }
+        else if ( attrs.hasOwnProperty('value') ){
+          //Set the initial model value based on JSON from value attr
+          var thisVal,
+            setInitialData,
+            tagsModel = [],
+            initialData = JSON.parse(attrs.value);
+            
+          if ( !(initialData instanceof Array) ){
+            initialData = [initialData];
+          }
+          
+          setInitialData = function(source){
+            for ( var i=0; i<initialData.length; i++){
+             thisVal = scope.source.filter(function(obj){return obj[options.valueProperty]==initialData[i];})[0];
+             if ( thisVal !== undefined ){
+               tagsModel.push(thisVal);
+             }
+            }
+            ngModelCtrl.$setViewValue(tagsModel);
+          };
+          if ( scope.source.length === 0 ){
+            var listener;
+            attrs.placeholder = 'Loading Initial Data...';
+            listener = scope.$watch('source', function(newVal,oldVal){
+              if (newVal.length > 0){
+                setInitialData();
+                element.removeAttr('placeholder');
+                listener();
+              }
+            });
+          }
+          setInitialData();
+          element.removeAttr('value');
         };
         
         scope.isDisabled = function(){
