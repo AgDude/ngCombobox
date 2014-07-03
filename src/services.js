@@ -45,7 +45,7 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q, $sce){
       };
       
       self.load = function (query, tags, force, loadFn) {
-        if (query.length < options.minLength && !force) {
+        if (query.length < options.minSearchLength && !force) {
           self.reset();
           return;
         }
