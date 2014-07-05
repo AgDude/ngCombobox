@@ -136,10 +136,9 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             tagsModel = ngModelCtrl.$viewValue;
           }
           angular.forEach(htmlOptions, function (opt, index) {
-            var optObj = {
-              value: opt.value,
-              text: opt.label
-            };
+            var optObj = {};
+            optObj[options.valueProperty] = opt.value;
+            optObj[options.displayProperty] = opt.label;
             source.push(optObj);
             if (opt.selected) {
               tagsModel.push(optObj);
@@ -473,11 +472,11 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
                 containsMatcher = new RegExp(term, 'i'),
                 deferred = $q.defer(),
                 matched = grep(scope[sourceProp], function (value) {
-                  return containsMatcher.test(value.text);
+                  return containsMatcher.test(value[options.displayProperty]);
                 });
               matched.sort(function (a, b) {
-                if (a.text.indexOf(term) === 0 || b.text.indexOf(term) === 0) {
-                  return a.text.indexOf(term) - b.text.indexOf(term);
+                if (a[options.displayProperty].indexOf(term) === 0 || b[options.displayProperty].indexOf(term) === 0) {
+                  return a[options.displayProperty].indexOf(term) - b[options.displayProperty].indexOf(term);
                 }
                 return 0;
               });
