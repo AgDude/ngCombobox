@@ -124,7 +124,6 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           documentClick,
           sourceFunc,
           secondaryFunc,
-          tagList = scope.tagList,
           events = scope.events,
           input = element.find('input'),
           htmlOptions = element.find('option');
@@ -215,7 +214,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             scope.newTag.invalid = true;
           })
           .on('input-change', function (value) {
-            tagList.selected = null;
+            scope.tagList.selected = null;
             scope.newTag.invalid = null;
             if (value) {
               suggestionList.load(value, scope.tags);
@@ -229,7 +228,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           .on('input-blur', function () {
             if ( options.allowNew && !options.confirmNew ) {
               if ( options.addOnBlur ) {
-                tagList.addText(scope.newTag.text);
+                scope.tagList.addText(scope.newTag.text);
               }
 
               ngModelCtrl.$setValidity('leftoverText', options.allowLeftoverText ? true : !scope.newTag.text);
@@ -268,7 +267,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         };
 
         scope.addNewTag = function(){
-          tagList.addText(scope.newTag.text);
+          scope.tagList.addText(scope.newTag.text);
         };
         
         scope.track = function (tag) {
@@ -280,8 +279,11 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         };
         
         scope.$watch('tags', function (value) {
-          scope.tags = makeObjectArray(value, options.displayProperty);
-          tagList.items = scope.tags;
+          if ( value === undefined || value === null || (value.length>0 && value[0] === undefined) ){
+            scope.tags = [];
+          }
+          else{ scope.tags = makeObjectArray(value, options.displayProperty); }
+          scope.tagList.items = scope.tags;
         });
 
         scope.$watch('tags.length', function (value) {
@@ -395,12 +397,12 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             shouldBlock = !options.allowNew && scope.newTag.invalid && addKeys[key];
 
             if (shouldAdd) {
-              tagList.addText(scope.newTag.text);
+              scope.tagList.addText(scope.newTag.text);
 
               scope.$apply();
               e.preventDefault();
             } else if (shouldRemove) {
-              var tag = tagList.removeLast();
+              var tag = scope.tagList.removeLast();
               if (tag && options.enableEditingLastTag) {
                 scope.newTag.text = tag[options.displayProperty];
               }

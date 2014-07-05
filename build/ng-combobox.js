@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-04 14:20:26 -0500
+ * Generated at 2014-07-05 10:40:21 -0500
  */
 (function() {
 'use strict';
@@ -443,7 +443,6 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           documentClick,
           sourceFunc,
           secondaryFunc,
-          tagList = scope.tagList,
           events = scope.events,
           input = element.find('input'),
           htmlOptions = element.find('option');
@@ -534,7 +533,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
             scope.newTag.invalid = true;
           })
           .on('input-change', function (value) {
-            tagList.selected = null;
+            scope.tagList.selected = null;
             scope.newTag.invalid = null;
             if (value) {
               suggestionList.load(value, scope.tags);
@@ -548,7 +547,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           .on('input-blur', function () {
             if ( options.allowNew && !options.confirmNew ) {
               if ( options.addOnBlur ) {
-                tagList.addText(scope.newTag.text);
+                scope.tagList.addText(scope.newTag.text);
               }
 
               ngModelCtrl.$setValidity('leftoverText', options.allowLeftoverText ? true : !scope.newTag.text);
@@ -587,7 +586,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         };
 
         scope.addNewTag = function(){
-          tagList.addText(scope.newTag.text);
+          scope.tagList.addText(scope.newTag.text);
         };
         
         scope.track = function (tag) {
@@ -599,8 +598,11 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         };
         
         scope.$watch('tags', function (value) {
-          scope.tags = makeObjectArray(value, options.displayProperty);
-          tagList.items = scope.tags;
+          if ( value === undefined || value === null || (value.length>0 && value[0] === undefined) ){
+            scope.tags = [];
+          }
+          else{ scope.tags = makeObjectArray(value, options.displayProperty); }
+          scope.tagList.items = scope.tags;
         });
 
         scope.$watch('tags.length', function (value) {
@@ -714,12 +716,12 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
             shouldBlock = !options.allowNew && scope.newTag.invalid && addKeys[key];
 
             if (shouldAdd) {
-              tagList.addText(scope.newTag.text);
+              scope.tagList.addText(scope.newTag.text);
 
               scope.$apply();
               e.preventDefault();
             } else if (shouldRemove) {
-              var tag = tagList.removeLast();
+              var tag = scope.tagList.removeLast();
               if (tag && options.enableEditingLastTag) {
                 scope.newTag.text = tag[options.displayProperty];
               }
