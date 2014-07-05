@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-05 10:40:21 -0500
+ * Generated at 2014-07-05 16:48:36 -0500
  */
 (function() {
 'use strict';
@@ -375,7 +375,7 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  */
 ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","SuggestionList","TagList","encodeHTML","tagsInputConfig", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
-  
+
   return {
     restrict: 'E',
     require: 'ngModel',
@@ -386,6 +386,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
       newTagAdded: '=?',
       source: '=?',
       secondarySource: '=?',
+      sortFunc: '=?',
     },
     replace: false,
     transclude: true,
@@ -789,18 +790,21 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
     
         function getMatches(sourceProp){
           return function getMatches($query) {
-              var term = $query.$query,
+              var term = $query.$query.toLowerCase(),
                 containsMatcher = new RegExp(term, 'i'),
                 deferred = $q.defer(),
                 matched = grep(scope[sourceProp], function (value) {
                   return containsMatcher.test(value[options.displayProperty]);
                 });
-              matched.sort(function (a, b) {
-                if (a[options.displayProperty].indexOf(term) === 0 || b[options.displayProperty].indexOf(term) === 0) {
-                  return a[options.displayProperty].indexOf(term) - b[options.displayProperty].indexOf(term);
-                }
-                return 0;
-              });
+              var sortFunc = scope.sortFunc || function(term){
+                return function (a, b) {
+                  if (a[options.displayProperty].toLowerCase().indexOf(term) === 0 || b[options.displayProperty].toLowerCase().indexOf(term) === 0) {
+                    return a[options.displayProperty].toLowerCase().indexOf(term) - b[options.displayProperty].toLowerCase().indexOf(term);
+                  }
+                  return 0;
+                };
+              };
+              matched.sort(sortFunc(term));
               deferred.resolve(matched);
               return deferred.promise;
           };
@@ -923,7 +927,7 @@ ngCombobox.provider('tagsInputConfig', function () {
 /* HTML templates */
 ngCombobox.run(["$templateCache", function($templateCache) {
     $templateCache.put('ngCombobox/combobox.html',
-    "<div class=\"host\" ng-class=\"{'input-group': options.showAll && source}\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{'focused': hasFocus, 'disabled':isDisabled()}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"removeTag($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ng-disabled=\"isDisabled()\" ti-autosize=\"\"></div><div class=\"autocomplete\" ng-show=\"suggestionList.visible || suggestionList.msgVisible()\"><!-- Messages --><ul class=\"suggestion-list\" ng-hide=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-click=\"addNewTag()\" ng-show=\"suggestionList.confirm\">{{ suggestionList.confirm }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.newSaving\">{{ options.savingMsg }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.loading && !suggestionList.confirm\">{{ suggestionList.msg }}</li></ul><!-- Actual Suggestions --><ul class=\"suggestion-list\" ng-show=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by $id(item)\" ng-class=\"{selected: item == suggestionList.selected}\" ng-click=\"addSuggestion()\" ng-mouseenter=\"suggestionList.select($index)\" ng-bind-html=\"highlight(item)\"></li><li class=\"suggestion-item\" ng-show=\"options.showTotal && suggestionList.more\">... and {{ suggestionList.more }} more</li></ul></div><span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
+    "<div class=\"host\" ng-class=\"{'input-group': options.showAll }\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{'focused': hasFocus, 'disabled':isDisabled()}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"removeTag($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ng-disabled=\"isDisabled()\" ti-autosize=\"\"></div><div class=\"autocomplete\" ng-show=\"suggestionList.visible || suggestionList.msgVisible()\"><!-- Messages --><ul class=\"suggestion-list\" ng-hide=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-click=\"addNewTag()\" ng-show=\"suggestionList.confirm\">{{ suggestionList.confirm }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.newSaving\">{{ options.savingMsg }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.loading && !suggestionList.confirm\">{{ suggestionList.msg }}</li></ul><!-- Actual Suggestions --><ul class=\"suggestion-list\" ng-show=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by $id(item)\" ng-class=\"{selected: item == suggestionList.selected}\" ng-click=\"addSuggestion()\" ng-mouseenter=\"suggestionList.select($index)\" ng-bind-html=\"highlight(item)\"></li><li class=\"suggestion-item\" ng-show=\"options.showTotal && suggestionList.more\">... and {{ suggestionList.more }} more</li></ul></div><span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
   );
 }]);
 

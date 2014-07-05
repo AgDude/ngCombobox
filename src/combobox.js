@@ -56,7 +56,7 @@
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  */
 ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
-  
+
   return {
     restrict: 'E',
     require: 'ngModel',
@@ -67,6 +67,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
       newTagAdded: '=?',
       source: '=?',
       secondarySource: '=?',
+      sortFunc: '=?',
     },
     replace: false,
     transclude: true,
@@ -470,18 +471,21 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
     
         function getMatches(sourceProp){
           return function getMatches($query) {
-              var term = $query.$query,
+              var term = $query.$query.toLowerCase(),
                 containsMatcher = new RegExp(term, 'i'),
                 deferred = $q.defer(),
                 matched = grep(scope[sourceProp], function (value) {
                   return containsMatcher.test(value[options.displayProperty]);
                 });
-              matched.sort(function (a, b) {
-                if (a[options.displayProperty].indexOf(term) === 0 || b[options.displayProperty].indexOf(term) === 0) {
-                  return a[options.displayProperty].indexOf(term) - b[options.displayProperty].indexOf(term);
-                }
-                return 0;
-              });
+              var sortFunc = scope.sortFunc || function(term){
+                return function (a, b) {
+                  if (a[options.displayProperty].toLowerCase().indexOf(term) === 0 || b[options.displayProperty].toLowerCase().indexOf(term) === 0) {
+                    return a[options.displayProperty].toLowerCase().indexOf(term) - b[options.displayProperty].toLowerCase().indexOf(term);
+                  }
+                  return 0;
+                };
+              };
+              matched.sort(sortFunc(term));
               deferred.resolve(matched);
               return deferred.promise;
           };

@@ -1,4 +1,4 @@
-<div class="host" ng-class="{'input-group': options.showAll && source}" tabindex="-1" ti-transclude-prepend>
+<div class="host" ng-class="{'input-group': options.showAll }" tabindex="-1" ti-transclude-prepend>
   <div class="tags" ng-class="{'focused': hasFocus, 'disabled':isDisabled()}">
     <ul class="tag-list">
       <li class="tag-item" ng-repeat="tag in tagList.items track by $id(tag)" ng-class="{ selected: tag == tagList.selected }">
