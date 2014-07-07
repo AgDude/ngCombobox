@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-07 05:53:45 -0500
+ * Generated at 2014-07-07 11:20:56 -0500
  */
 (function() {
 'use strict';
@@ -506,7 +506,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           setInitialData();
           element.removeAttr('value');
         }
-         else if ( !(scope.tags instanceof Array) ){
+         else if ( !(scope.tags instanceof Array) && scope.tags !== undefined ){
           //We got a single value, look for it in the source
           tagsModel = scope.source.filter(function(obj){
             return obj[options.valueProperty] == scope.tags;
@@ -805,6 +805,14 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
                   return containsMatcher.test(value[options.displayProperty]);
                 });
               var sortFunc = scope.sortFunc || function(term){
+                if ( !term ){
+                  return function(a,b){
+                    //sort alphabetically be displayProperty
+                    if(a[options.displayProperty].toLowerCase() < b[options.displayProperty].toLowerCase()) return -1;
+                    if(a[options.displayProperty].toLowerCase() > b[options.displayProperty].toLowerCase()) return 1;
+                    return 0;
+                  };
+                }
                 return function (a, b) {
                   if (a[options.displayProperty].toLowerCase().indexOf(term) === 0 || b[options.displayProperty].toLowerCase().indexOf(term) === 0) {
                     return a[options.displayProperty].toLowerCase().indexOf(term) - b[options.displayProperty].toLowerCase().indexOf(term);

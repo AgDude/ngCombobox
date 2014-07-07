@@ -486,6 +486,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
                   return containsMatcher.test(value[options.displayProperty]);
                 });
               var sortFunc = scope.sortFunc || function(term){
+                if ( !term ){
+                  return function(a,b){
+                    //sort alphabetically be displayProperty
+                    if(a[options.displayProperty].toLowerCase() < b[options.displayProperty].toLowerCase()) return -1;
+                    if(a[options.displayProperty].toLowerCase() > b[options.displayProperty].toLowerCase()) return 1;
+                    return 0;
+                  };
+                }
                 return function (a, b) {
                   if (a[options.displayProperty].toLowerCase().indexOf(term) === 0 || b[options.displayProperty].toLowerCase().indexOf(term) === 0) {
                     return a[options.displayProperty].toLowerCase().indexOf(term) - b[options.displayProperty].toLowerCase().indexOf(term);
