@@ -187,7 +187,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           setInitialData();
           element.removeAttr('value');
         }
-         else if ( !(scope.tags instanceof Array) ){
+         else if ( !(scope.tags instanceof Array) && scope.tags !== undefined ){
           //We got a single value, look for it in the source
           tagsModel = scope.source.filter(function(obj){
             return obj[options.valueProperty] == scope.tags;
