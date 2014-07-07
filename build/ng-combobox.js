@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-07 11:20:56 -0500
+ * Generated at 2014-07-07 14:20:08 -0500
  */
 (function() {
 'use strict';
@@ -315,6 +315,25 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
 
     return self;
   };
+})
+.factory('matchSorter',function(){
+  return function(term, displayProperty){
+    displayProperty = displayProperty === undefined ? 'text' : displayProperty;
+    if ( !term ){
+      return function(a,b){
+        //sort alphabetically by displayProperty
+        if(a[displayProperty].toLowerCase() < b[displayProperty].toLowerCase()) return -1;
+        if(a[displayProperty].toLowerCase() > b[displayProperty].toLowerCase()) return 1;
+        return 0;
+      };
+    }
+    return function (a, b) {
+      if (a[displayProperty].toLowerCase().indexOf(term) === 0 || b[displayProperty].toLowerCase().indexOf(term) === 0) {
+        return a[displayProperty].toLowerCase().indexOf(term) - b[displayProperty].toLowerCase().indexOf(term);
+      }
+      return 0;
+    };
+  };
 });
 
   
@@ -356,9 +375,9 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
  *                                      will be presented with a message to confirm before adding a new tag.
  * @param {expression} onTagAdded Expression to evaluate upon adding a new tag. The new tag is available as $tag.
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
- * @param {expression} NewTagAdded Function to evaluate upon adding a new tag not in the suggestion list. 
- *                            The new tag will be passed as the only agrument and will only have a single property ('text').
- *                            This should always be a function which returns a promise, if the promise reslove object with property 'data', that data will replace the new tag.
+ * @param {expression} newTagAdded Function to evaluate upon adding a new tag not in the suggestion list. 
+ *                            The new tag will be passed as the only argument and will have a single property ('text').
+ *                            This should always be a function which returns a promise, if the promise resloves to an object with property 'data', that data will replace the new tag.
  * @param {expression} source Expression to evaluate upon changing the input content. The input value is available as
  *                            $query. The result of the expression must be a promise that eventually resolves to an
  *                            array of strings.
@@ -374,11 +393,11 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
  * @param {string=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  */
-ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","SuggestionList","TagList","encodeHTML","tagsInputConfig", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig) {
+ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","SuggestionList","TagList","encodeHTML","tagsInputConfig","matchSorter", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter) {
 
   return {
     restrict: 'E',
-    require: 'ngModel',
+    require: ['ngModel','?timepicker'],
     scope: {
       tags: '=ngModel',
       onTagAdded: '&',
@@ -436,7 +455,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
 
     }],
     link: {
-      post: function (scope, element, attrs, ngModelCtrl) {
+      post: function (scope, element, attrs, ctrls) {
         var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period, KEYS.space, KEYS.comma, KEYS.backspace],
           suggestionList,
           options = scope.options,
@@ -444,10 +463,27 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           documentClick,
           sourceFunc,
           secondaryFunc,
+          ngModelCtrl = ctrls[0],
+          timepickerCtrl = ctrls[1],
           events = scope.events,
           input = element.find('input'),
           htmlOptions = element.find('option');
-
+        
+        //set options for timepicker
+        if ( timepickerCtrl !== undefined ){
+          scope.source = timepickerCtrl.timeMatcher;
+          scope.newTagAdded = timepickerCtrl.timeValidator;
+          if ( !attrs.hasOwnProperty('show-total') ){
+            scope.options.showTotal = false;
+          }
+          if ( !attrs.hasOwnProperty('allowNew') ){
+            scope.options.allowNew = true;
+          }
+          scope.options.minSearchLength = 1;
+          scope.options.confirmNew = false;
+          scope.options.addOnPeriod = false;
+        }
+        
         if (htmlOptions.length > 0) {
           var tagsModel = [],
             source = [];
@@ -506,13 +542,13 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           setInitialData();
           element.removeAttr('value');
         }
-         else if ( !(scope.tags instanceof Array) && scope.tags !== undefined ){
-          //We got a single value, look for it in the source
-          tagsModel = scope.source.filter(function(obj){
-            return obj[options.valueProperty] == scope.tags;
-          });
-          ngModelCtrl.$setViewValue(tagsModel);
-        };
+         // else if ( !(scope.tags instanceof Array) && scope.tags !== undefined && scope.source !== undefined ){
+          // //We got a single value, look for it in the source
+          // tagsModel = scope.source.filter(function(obj){
+            // return obj[options.valueProperty] == scope.tags;
+          // });
+          // ngModelCtrl.$setViewValue(tagsModel);
+        // };
         
         scope.isDisabled = function(){
           if ( !angular.isDefined(attrs.disabled) || attrs.disabled == false){
@@ -804,23 +840,8 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
                 matched = grep(scope[sourceProp], function (value) {
                   return containsMatcher.test(value[options.displayProperty]);
                 });
-              var sortFunc = scope.sortFunc || function(term){
-                if ( !term ){
-                  return function(a,b){
-                    //sort alphabetically be displayProperty
-                    if(a[options.displayProperty].toLowerCase() < b[options.displayProperty].toLowerCase()) return -1;
-                    if(a[options.displayProperty].toLowerCase() > b[options.displayProperty].toLowerCase()) return 1;
-                    return 0;
-                  };
-                }
-                return function (a, b) {
-                  if (a[options.displayProperty].toLowerCase().indexOf(term) === 0 || b[options.displayProperty].toLowerCase().indexOf(term) === 0) {
-                    return a[options.displayProperty].toLowerCase().indexOf(term) - b[options.displayProperty].toLowerCase().indexOf(term);
-                  }
-                  return 0;
-                };
-              };
-              matched.sort(sortFunc(term));
+              var sortFunc = scope.sortFunc || matchSorter;
+              matched.sort(sortFunc(term, options.displayProperty));
               deferred.resolve(matched);
               return deferred.promise;
           };
@@ -830,6 +851,90 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
     }
   };
 }]);
+
+ngCombobox.directive('timepicker',function(){
+  return {
+    restrict: 'A',
+    require: ['combobox','ngModel'],
+    priority: 10,
+    controller: ["$scope","$q","grep","matchSorter", function($scope, $q, grep, matchSorter){
+      var ap, hr, minute,
+        timeMatcher,
+        times = [];
+      for (var i=0; i < 24; i++){
+          if (i <= 12 && i > 0){ hr = i.toString(); }
+          else if (i==0){ hr = '12'; }
+          else{ hr = (i-12).toString(); };
+          
+          for (var j=0; j < 60; j+=15){
+              ap = i>=12 ? ' PM' : ' AM';
+              minute = j < 10 ? '0' + j : j.toString();
+              times.push({
+                text: hr + ':' + minute + ap,
+                value: i.toString() + ':' + minute,
+                raw: hr + minute + ap,
+              });
+          }
+      }
+      
+      this.timeMatcher = function($query){
+        var term = $query.$query.toLowerCase(),
+          termNum = term.replace(/[\D]/g,''),
+          termAP = term.match(/[apAP\+]/),
+          numMatcher = new RegExp(termNum, 'i'),
+          deferred = $q.defer(),
+          matched, apMatcher;
+          
+        if (termAP==null){ termAP=''; }
+        else if(termAP=='+'){ termAP='P'; };
+        
+        apMatcher = new RegExp(termAP, 'i'),
+        
+        matched = grep(times, function(value){
+          return numMatcher.test(value.raw);
+        });
+        matched = grep(matched, function(value){
+         return apMatcher.test(value.raw);
+        });
+        
+        matched.sort(matchSorter(termNum));
+        deferred.resolve(matched);
+        return deferred.promise;
+      };
+      
+      this.timeValidator = function(tag){
+        var ap, hr, minute,
+          timeStr, timeVal,
+          num = tag.text.replace(/\D/g,''),
+          ap = tag.text.match(/[apAP+]/),
+          deferred = $q.defer();
+          
+        ap = (ap == 'p' || ap =="P" || ap=='+') ? 'PM' : 'AM';
+        hr = ( num.length === 3 ) ? num.substr(0,1) : num.substr(0,2);
+        minute =  ( num.length === 3 ) ? num.substr(1,2) : num.substr(2,2);
+        if ( parseInt(hr) > 12 ){
+          ap = '';
+        }
+        timeStr = hr + ':' + minute + ' ' + ap;
+        if ( /(^[0-9]|[1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
+          timeVal = ap == 'PM' ? parseInt(hr) + 12 : hr;
+          if ( ap === 'AM' && timeVal === '12'){
+            timeVal = '00';
+          }
+          timeVal += ':' + minute;
+          deferred.resolve({data: {
+            text: timeStr,
+            value: timeVal
+          }});
+        }
+        else { deferred.resolve({}); }
+        return deferred.promise;
+      };
+      
+    }],
+  };
+});
+
 
 /**
  * @ngdoc directive

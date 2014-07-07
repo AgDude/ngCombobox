@@ -17,6 +17,7 @@ module.exports = function (grunt) {
           'src/init.js',
           'src/services.js',
           'src/combobox.js',
+          'src/timepicker.js',
           'src/transclude-prepend.js',
           'src/configuration.js'
         ],

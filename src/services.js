@@ -213,6 +213,25 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q, $sce){
 
     return self;
   };
+})
+.factory('matchSorter',function(){
+  return function(term, displayProperty){
+    displayProperty = displayProperty === undefined ? 'text' : displayProperty;
+    if ( !term ){
+      return function(a,b){
+        //sort alphabetically by displayProperty
+        if(a[displayProperty].toLowerCase() < b[displayProperty].toLowerCase()) return -1;
+        if(a[displayProperty].toLowerCase() > b[displayProperty].toLowerCase()) return 1;
+        return 0;
+      };
+    }
+    return function (a, b) {
+      if (a[displayProperty].toLowerCase().indexOf(term) === 0 || b[displayProperty].toLowerCase().indexOf(term) === 0) {
+        return a[displayProperty].toLowerCase().indexOf(term) - b[displayProperty].toLowerCase().indexOf(term);
+      }
+      return 0;
+    };
+  };
 });
 
 
