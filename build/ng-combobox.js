@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-05 16:48:36 -0500
+ * Generated at 2014-07-07 05:53:45 -0500
  */
 (function() {
 'use strict';
@@ -472,15 +472,16 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           ngModelCtrl.$setViewValue(tagsModel);
         }
         else if ( attrs.hasOwnProperty('value') ){
-          //Set the initial model value based on JSON from value attr
+        //Set the initial model value based on JSON from value attr
           var thisVal,
             setInitialData,
             tagsModel = [],
             initialData = JSON.parse(attrs.value);
-            
+          
           if ( !(initialData instanceof Array) ){
             initialData = [initialData];
           }
+       
           
           setInitialData = function(source){
             for ( var i=0; i<initialData.length; i++){
@@ -504,6 +505,13 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           }
           setInitialData();
           element.removeAttr('value');
+        }
+         else if ( !(scope.tags instanceof Array) ){
+          //We got a single value, look for it in the source
+          tagsModel = scope.source.filter(function(obj){
+            return obj[options.valueProperty] == scope.tags;
+          });
+          ngModelCtrl.$setViewValue(tagsModel);
         };
         
         scope.isDisabled = function(){

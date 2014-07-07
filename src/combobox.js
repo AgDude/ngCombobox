@@ -153,15 +153,16 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           ngModelCtrl.$setViewValue(tagsModel);
         }
         else if ( attrs.hasOwnProperty('value') ){
-          //Set the initial model value based on JSON from value attr
+        //Set the initial model value based on JSON from value attr
           var thisVal,
             setInitialData,
             tagsModel = [],
             initialData = JSON.parse(attrs.value);
-            
+          
           if ( !(initialData instanceof Array) ){
             initialData = [initialData];
           }
+       
           
           setInitialData = function(source){
             for ( var i=0; i<initialData.length; i++){
@@ -185,6 +186,13 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           }
           setInitialData();
           element.removeAttr('value');
+        }
+         else if ( !(scope.tags instanceof Array) ){
+          //We got a single value, look for it in the source
+          tagsModel = scope.source.filter(function(obj){
+            return obj[options.valueProperty] == scope.tags;
+          });
+          ngModelCtrl.$setViewValue(tagsModel);
         };
         
         scope.isDisabled = function(){
