@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-08 06:33:20 -0500
+ * Generated at 2014-07-08 08:07:24 -0500
  */
 (function() {
 'use strict';
@@ -269,8 +269,8 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
     };
 
     self.add = function (tag) {
-      var tagText = getTagText(tag)
-        .trim();
+      var tagText = getTagText(tag);
+      tagText = isNaN(tagText) ? tagText.trim() : tagText.toString();
 
       if (options.replaceSpacesWithDashes) {
         tagText = tagText.replace(/\s/g, '-');

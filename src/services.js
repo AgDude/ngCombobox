@@ -167,8 +167,8 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q, $sce){
     };
 
     self.add = function (tag) {
-      var tagText = getTagText(tag)
-        .trim();
+      var tagText = getTagText(tag);
+      tagText = isNaN(tagText) ? tagText.trim() : tagText.toString();
 
       if (options.replaceSpacesWithDashes) {
         tagText = tagText.replace(/\s/g, '-');
