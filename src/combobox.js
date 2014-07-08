@@ -458,6 +458,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
               // thisVal = scope.source.filter(function(obj){return obj[options.valueProperty]==initialData[i];})[0];
               scope.newTag.text = initialData[i]; 
               scope.addNewTag();
+              scope.newTag.text = '';
             }
           };
           
