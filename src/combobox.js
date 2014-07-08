@@ -390,16 +390,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             if (shouldAdd) {
               scope.tagList.addText(scope.newTag.text);
 
-              scope.$apply();
-              e.preventDefault();
+              handled = true;
             } else if (shouldRemove) {
               var tag = scope.tagList.removeLast();
               if (tag && options.enableEditingLastTag) {
                 scope.newTag.text = tag[options.displayProperty];
               }
 
-              scope.$apply();
-              e.preventDefault();
+              handled = true;
             } else if (shouldBlock) {
               scope.newTag.text = 'Invalid Entry...';
               scope.newTag.readonly = true;

@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-07 18:33:59 -0500
+ * Generated at 2014-07-08 05:59:42 -0500
  */
 (function() {
 'use strict';
@@ -728,16 +728,14 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
             if (shouldAdd) {
               scope.tagList.addText(scope.newTag.text);
 
-              scope.$apply();
-              e.preventDefault();
+              handled = true;
             } else if (shouldRemove) {
               var tag = scope.tagList.removeLast();
               if (tag && options.enableEditingLastTag) {
                 scope.newTag.text = tag[options.displayProperty];
               }
 
-              scope.$apply();
-              e.preventDefault();
+              handled = true;
             } else if (shouldBlock) {
               scope.newTag.text = 'Invalid Entry...';
               scope.newTag.readonly = true;
