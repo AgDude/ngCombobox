@@ -3,7 +3,7 @@
 ngCombobox.directive('timepicker',function(){
   return {
     restrict: 'A',
-    require: ['combobox','ngModel'],
+    require: 'combobox',
     priority: 10,
     controller: function($scope, $q, grep, matchSorter){
       var ap, hr, minute,
@@ -61,7 +61,8 @@ ngCombobox.directive('timepicker',function(){
         hr = ( num.length === 3 ) ? num.substr(0,1) : num.substr(0,2);
         minute =  ( num.length === 3 ) ? num.substr(1,2) : num.substr(2,2);
         if ( parseInt(hr) > 12 ){
-          ap = '';
+          hr = parseInt(hr) - 12;
+          ap = 'PM';
         }
         timeStr = hr + ':' + minute + ' ' + ap;
         if ( /(^[0-9]|[1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
@@ -78,6 +79,10 @@ ngCombobox.directive('timepicker',function(){
         else { deferred.resolve({}); }
         return deferred.promise;
       };
+      
+    this.fromValue = function(value){
+      times.filter(function(obj){return obj.value == value; });
+    };
       
     },
   };

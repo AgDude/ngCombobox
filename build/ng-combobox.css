@@ -60,6 +60,8 @@ combobox .tags {
       color: #585858; }
       combobox .tags .tag-item .remove-button:active {
         color: #ff0000; }
+  combobox .tags .input-narrow {
+    width: 1em; }
   combobox .tags .input {
     border: 0;
     outline: none;

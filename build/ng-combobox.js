@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-07 14:20:08 -0500
+ * Generated at 2014-07-07 18:33:59 -0500
  */
 (function() {
 'use strict';
@@ -400,6 +400,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
     require: ['ngModel','?timepicker'],
     scope: {
       tags: '=ngModel',
+      inputValue: '=?value',
       onTagAdded: '&',
       onTagRemoved: '&',
       newTagAdded: '=?',
@@ -416,6 +417,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         disabledPlaceholder: [String,''],
         tabindex: [Number],
         removeTagSymbol: [String, String.fromCharCode(215)],
+        removeButton: [Boolean, true],
         replaceSpacesWithDashes: [Boolean, true],
         minLength: [Number, 2],
         maxLength: [Number],
@@ -463,6 +465,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           documentClick,
           sourceFunc,
           secondaryFunc,
+          valueLookup,
           ngModelCtrl = ctrls[0],
           timepickerCtrl = ctrls[1],
           events = scope.events,
@@ -473,15 +476,19 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         if ( timepickerCtrl !== undefined ){
           scope.source = timepickerCtrl.timeMatcher;
           scope.newTagAdded = timepickerCtrl.timeValidator;
+          valueLookup = timepickerCtrl.fromValue;
           if ( !attrs.hasOwnProperty('show-total') ){
             scope.options.showTotal = false;
           }
           if ( !attrs.hasOwnProperty('allowNew') ){
             scope.options.allowNew = true;
           }
+          if ( !attrs.hasOwnProperty('removeButton') ){
+          }
           scope.options.minSearchLength = 1;
           scope.options.confirmNew = false;
           scope.options.addOnPeriod = false;
+          scope.options.replaceSpacesWithDashes = false;
         }
         
         if (htmlOptions.length > 0) {
@@ -507,48 +514,6 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           }
           ngModelCtrl.$setViewValue(tagsModel);
         }
-        else if ( attrs.hasOwnProperty('value') ){
-        //Set the initial model value based on JSON from value attr
-          var thisVal,
-            setInitialData,
-            tagsModel = [],
-            initialData = JSON.parse(attrs.value);
-          
-          if ( !(initialData instanceof Array) ){
-            initialData = [initialData];
-          }
-       
-          
-          setInitialData = function(source){
-            for ( var i=0; i<initialData.length; i++){
-             thisVal = scope.source.filter(function(obj){return obj[options.valueProperty]==initialData[i];})[0];
-             if ( thisVal !== undefined ){
-               tagsModel.push(thisVal);
-             }
-            }
-            ngModelCtrl.$setViewValue(tagsModel);
-          };
-          if ( scope.source.length === 0 ){
-            var listener;
-            options.placeholder = 'Loading Initial Data...';
-            listener = scope.$watch('source', function(newVal,oldVal){
-              if (newVal.length > 0){
-                setInitialData();
-                input.removeAttr('placeholder');
-                listener();
-              }
-            });
-          }
-          setInitialData();
-          element.removeAttr('value');
-        }
-         // else if ( !(scope.tags instanceof Array) && scope.tags !== undefined && scope.source !== undefined ){
-          // //We got a single value, look for it in the source
-          // tagsModel = scope.source.filter(function(obj){
-            // return obj[options.valueProperty] == scope.tags;
-          // });
-          // ngModelCtrl.$setViewValue(tagsModel);
-        // };
         
         scope.isDisabled = function(){
           if ( !angular.isDefined(attrs.disabled) || attrs.disabled == false){
@@ -644,7 +609,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         
         scope.$watch('tags', function (value) {
           if ( value === undefined || value === null || (value.length>0 && value[0] === undefined) ){
-            scope.tags = [];
+            scope.tags = scope.tagList.items;
           }
           else{ scope.tags = makeObjectArray(value, options.displayProperty); }
           scope.tagList.items = scope.tags;
@@ -813,12 +778,59 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
               }
             });
           });
-          
+        
         element.find('div')
           .on('click', function () {
             input[0].focus();
           });
           
+        if ( scope.inputValue !== undefined ){
+          //Set the initial model value based on JSON from value attr
+          var thisVal,
+            setInitialData,
+            initialData = scope.inputValue;
+          
+          if ( !(initialData instanceof Array) ){
+            initialData = [initialData];
+          }
+       
+          
+          setInitialData = function(source){
+            for ( var i=0; i<initialData.length; i++){
+              // thisVal = scope.source.filter(function(obj){return obj[options.valueProperty]==initialData[i];})[0];
+              scope.newTag.text = initialData[i]; 
+              scope.addNewTag();
+            }
+          };
+          
+          if ( scope.source.length === 0 ){
+            var listener;
+            options.placeholder = 'Loading Initial Data...';
+            listener = scope.$watch('source', function(newVal,oldVal){
+              if (newVal.length > 0){
+                setInitialData();
+                input.removeAttr('placeholder');
+                listener();
+              }
+            });
+          }
+          setInitialData();
+          element.removeAttr('value');
+        }
+        else if ( !(scope.tags instanceof Array) && scope.tags !== undefined ){
+          //We got a single value, look for it in the source
+          tagsModel = [];
+          if (scope.source instanceof Array){
+            tagsModel = scope.source.filter(function(obj){
+              return obj[options.valueProperty] == scope.tags;
+            });
+          }
+          else if ( valueLookup !== undefined){
+            tagsModel = valueLookup(scope.tags);
+          }
+          ngModelCtrl.$setViewValue(tagsModel);
+        };
+        
         documentClick = function () {
           if (suggestionList.visible) {
             suggestionList.reset();
@@ -855,7 +867,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
 ngCombobox.directive('timepicker',function(){
   return {
     restrict: 'A',
-    require: ['combobox','ngModel'],
+    require: 'combobox',
     priority: 10,
     controller: ["$scope","$q","grep","matchSorter", function($scope, $q, grep, matchSorter){
       var ap, hr, minute,
@@ -913,7 +925,8 @@ ngCombobox.directive('timepicker',function(){
         hr = ( num.length === 3 ) ? num.substr(0,1) : num.substr(0,2);
         minute =  ( num.length === 3 ) ? num.substr(1,2) : num.substr(2,2);
         if ( parseInt(hr) > 12 ){
-          ap = '';
+          hr = parseInt(hr) - 12;
+          ap = 'PM';
         }
         timeStr = hr + ':' + minute + ' ' + ap;
         if ( /(^[0-9]|[1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
@@ -930,6 +943,10 @@ ngCombobox.directive('timepicker',function(){
         else { deferred.resolve({}); }
         return deferred.promise;
       };
+      
+    this.fromValue = function(value){
+      times.filter(function(obj){return obj.value == value; });
+    };
       
     }],
   };
@@ -1048,7 +1065,7 @@ ngCombobox.provider('tagsInputConfig', function () {
 /* HTML templates */
 ngCombobox.run(["$templateCache", function($templateCache) {
     $templateCache.put('ngCombobox/combobox.html',
-    "<div class=\"host\" ng-class=\"{'input-group': options.showAll }\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{'focused': hasFocus, 'disabled':isDisabled()}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"removeTag($index)\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ng-disabled=\"isDisabled()\" ti-autosize=\"\"></div><div class=\"autocomplete\" ng-show=\"suggestionList.visible || suggestionList.msgVisible()\"><!-- Messages --><ul class=\"suggestion-list\" ng-hide=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-click=\"addNewTag()\" ng-show=\"suggestionList.confirm\">{{ suggestionList.confirm }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.newSaving\">{{ options.savingMsg }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.loading && !suggestionList.confirm\">{{ suggestionList.msg }}</li></ul><!-- Actual Suggestions --><ul class=\"suggestion-list\" ng-show=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by $id(item)\" ng-class=\"{selected: item == suggestionList.selected}\" ng-click=\"addSuggestion()\" ng-mouseenter=\"suggestionList.select($index)\" ng-bind-html=\"highlight(item)\"></li><li class=\"suggestion-item\" ng-show=\"options.showTotal && suggestionList.more\">... and {{ suggestionList.more }} more</li></ul></div><span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
+    "<div class=\"host\" ng-class=\"{'input-group': options.showAll }\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{'focused': hasFocus, 'disabled':isDisabled()}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"removeTag($index)\" ng-if=\"options.removeButton\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{options.placeholder}}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid, 'input-narrow' : tags.length >= options.maxTags}\" ng-disabled=\"isDisabled()\" ti-autosize=\"\"></div><div class=\"autocomplete\" ng-show=\"suggestionList.visible || suggestionList.msgVisible()\"><!-- Messages --><ul class=\"suggestion-list\" ng-hide=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-click=\"addNewTag()\" ng-show=\"suggestionList.confirm\">{{ suggestionList.confirm }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.newSaving\">{{ options.savingMsg }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.loading && !suggestionList.confirm\">{{ suggestionList.msg }}</li></ul><!-- Actual Suggestions --><ul class=\"suggestion-list\" ng-show=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by $id(item)\" ng-class=\"{selected: item == suggestionList.selected}\" ng-click=\"addSuggestion()\" ng-mouseenter=\"suggestionList.select($index)\" ng-bind-html=\"highlight(item)\"></li><li class=\"suggestion-item\" ng-show=\"options.showTotal && suggestionList.more\">... and {{ suggestionList.more }} more</li></ul></div><span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
   );
 }]);
 
