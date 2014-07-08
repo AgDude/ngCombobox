@@ -8,7 +8,7 @@
     </ul>
     <input type="text"
            class="input"
-           placeholder="{{options.placeholder}}"
+           placeholder="{{tags.length < options.maxTags && options.currentPlaceholder || '' }}"
            tabindex="{{options.tabindex}}"
            ng-model="newTag.text"
            ng-readonly="newTag.readonly"

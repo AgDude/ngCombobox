@@ -92,8 +92,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         addOnBlur: [Boolean, true],
         allowedTagsPattern: [RegExp, /.+/],
         enableEditingLastTag: [Boolean, false],
-        minTags: [Number],
-        maxTags: [Number],
+        minTags: [Number,0],
+        maxTags: [Number,999],
         displayProperty: [String, 'text'],
         valueProperty: [String, 'value'],
         allowLeftoverText: [Boolean, false],
@@ -108,7 +108,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         secondaryMsg: [String, ''],
         savingMsg: [String, ''],
       });
-
+      
       $scope.events = new SimplePubSub();
       $scope.tagList = new TagList($scope.options, $scope.events);
       $scope.removeTag = function($index){
@@ -133,6 +133,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           events = scope.events,
           input = element.find('input'),
           htmlOptions = element.find('option');
+        
+        options.currentPlaceholder = options.placeholder;
         
         //set options for timepicker
         if ( timepickerCtrl !== undefined ){
@@ -171,9 +173,6 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
               .remove();
           });
           scope.source = source;
-          if ( tagsModel.length > 0){
-            options.placeholder = '';
-          }
           ngModelCtrl.$setViewValue(tagsModel);
         }
         
@@ -182,7 +181,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             return false;
           }
           if ( options.disabledPlaceholder ){
-            input.attr('placeholder',options.disabledPlaceholder);  
+            options.currentPlaceholder =  options.disabledPlaceholder;  
           }
           return true;
         };
@@ -192,7 +191,6 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           .on('tag-removed', scope.onTagRemoved)
           .on('tag-added', function () {
             scope.newTag.text = '';
-            input.removeAttr('placeholder');
           })
           .on('tag-added tag-removed', function () {
             ngModelCtrl.$setViewValue(scope.tags);
@@ -465,11 +463,10 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           
           if ( scope.source.length === 0 ){
             var listener;
-            options.placeholder = 'Loading Initial Data...';
+            options.currentPlaceholder = 'Loading Initial Data...';
             listener = scope.$watch('source', function(newVal,oldVal){
               if (newVal.length > 0){
                 setInitialData();
-                input.removeAttr('placeholder');
                 listener();
               }
             });
