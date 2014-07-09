@@ -78,7 +78,7 @@ combobox .tags {
 combobox .input-group .tags {
   border-bottom-right-radius: 0;
   border-top-right-radius: 0; }
-combobox.ng-invalid .tags {
+combobox.ng-invalid.ng-dirty .tags {
   -webkit-box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
   -moz-box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
   box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6); }

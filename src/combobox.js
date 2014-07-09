@@ -44,6 +44,7 @@
  *                            $query. The result of the expression must be a promise that eventually resolves to an
  *                            array of strings.
  * @param {expression} secondarySource Expression to use if source returns zero items.
+ * @param {expression} sortFunc should be a function which takes term as its first param and options.displayPropert as the second. It should return a sorting function accepting a, b 
  * @param {number=} [debounceDelay=100] Amount of time, in milliseconds, to wait before evaluating the expression in
  *                                      the source option after the last keystroke.
  * @param {number=} [minLength=3] Minimum number of characters that must be entered before evaluating the expression
@@ -135,6 +136,10 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           htmlOptions = element.find('option');
         
         options.currentPlaceholder = options.placeholder;
+        //override the $isEmpty on ngModel to include an empty Array.
+        ngModelCtrl.$isEmpty = function (value) {
+          return angular.isUndefined(value) || value === '' || value === null || value !== value || value.length === 0;
+        };
         
         //set options for timepicker
         if ( timepickerCtrl !== undefined ){

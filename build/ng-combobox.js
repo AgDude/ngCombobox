@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-08 08:23:15 -0500
+ * Generated at 2014-07-09 16:35:24 -0500
  */
 (function() {
 'use strict';
@@ -78,27 +78,8 @@ function replaceAll(str, substr, newSubstr) {
 
 
 
-var ngCombobox = angular.module('ngCombobox', [])
-  .factory('grep', function () {
-    //Copied from jquery.grep
-    return function (elems, callback, invert) {
-      var callbackInverse,
-        matches = [],
-        i = 0,
-        length = elems.length,
-        callbackExpect = !invert;
-
-      // Go through the array, only saving the items
-      // that pass the validator function
-      for (; i < length; i++) {
-        callbackInverse = !callback(elems[i], i);
-        if (callbackInverse !== callbackExpect) {
-          matches.push(elems[i]);
-        }
-      };
-      return matches;
-    };
-  });
+var ngCombobox = angular.module('ngCombobox', []);
+  
 
 ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", function($timeout, $interval, $q, $sce){
   return function(primaryFn, secondaryFn, options) {
@@ -334,7 +315,27 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
       return 0;
     };
   };
-});
+})
+.factory('grep', function () {
+    //Copied from jquery.grep
+    return function (elems, callback, invert) {
+      var callbackInverse,
+        matches = [],
+        i = 0,
+        length = elems.length,
+        callbackExpect = !invert;
+
+      // Go through the array, only saving the items
+      // that pass the validator function
+      for (; i < length; i++) {
+        callbackInverse = !callback(elems[i], i);
+        if (callbackInverse !== callbackExpect) {
+          matches.push(elems[i]);
+        }
+      };
+      return matches;
+    };
+  });
 
   
 
@@ -382,6 +383,7 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
  *                            $query. The result of the expression must be a promise that eventually resolves to an
  *                            array of strings.
  * @param {expression} secondarySource Expression to use if source returns zero items.
+ * @param {expression} sortFunc should be a function which takes term as its first param and options.displayPropert as the second. It should return a sorting function accepting a, b 
  * @param {number=} [debounceDelay=100] Amount of time, in milliseconds, to wait before evaluating the expression in
  *                                      the source option after the last keystroke.
  * @param {number=} [minLength=3] Minimum number of characters that must be entered before evaluating the expression
@@ -473,6 +475,10 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           htmlOptions = element.find('option');
         
         options.currentPlaceholder = options.placeholder;
+        //override the $isEmpty on ngModel to include an empty Array.
+        ngModelCtrl.$isEmpty = function (value) {
+          return angular.isUndefined(value) || value === '' || value === null || value !== value || value.length === 0;
+        };
         
         //set options for timepicker
         if ( timepickerCtrl !== undefined ){

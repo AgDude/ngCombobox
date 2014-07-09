@@ -94,7 +94,7 @@ combobox {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
   }
-  &.ng-invalid .tags {
+  &.ng-invalid.ng-dirty .tags {
     @include box-shadow($tags-outline-box-shadow-invalid);
   }
 }
