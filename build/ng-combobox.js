@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-09 16:35:24 -0500
+ * Generated at 2014-07-09 17:59:26 -0500
  */
 (function() {
 'use strict';
@@ -421,7 +421,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         removeTagSymbol: [String, String.fromCharCode(215)],
         removeButton: [Boolean, true],
         replaceSpacesWithDashes: [Boolean, true],
-        minLength: [Number, 2],
+        minLength: [Number, 1],
         maxLength: [Number],
         showTotal: [Boolean, true],
         addOnEnter: [Boolean, true],
@@ -518,6 +518,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           });
           scope.source = source;
           ngModelCtrl.$setViewValue(tagsModel);
+          ngModelCtrl.$setPristine();
         }
         
         scope.isDisabled = function(){
@@ -831,6 +832,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
             tagsModel = valueLookup(scope.tags);
           }
           ngModelCtrl.$setViewValue(tagsModel);
+          ngModelCtrl.$setPristine();
         };
         
         documentClick = function () {

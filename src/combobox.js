@@ -82,7 +82,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         removeTagSymbol: [String, String.fromCharCode(215)],
         removeButton: [Boolean, true],
         replaceSpacesWithDashes: [Boolean, true],
-        minLength: [Number, 2],
+        minLength: [Number, 1],
         maxLength: [Number],
         showTotal: [Boolean, true],
         addOnEnter: [Boolean, true],
@@ -179,6 +179,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           });
           scope.source = source;
           ngModelCtrl.$setViewValue(tagsModel);
+          ngModelCtrl.$setPristine();
         }
         
         scope.isDisabled = function(){
@@ -492,6 +493,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             tagsModel = valueLookup(scope.tags);
           }
           ngModelCtrl.$setViewValue(tagsModel);
+          ngModelCtrl.$setPristine();
         };
         
         documentClick = function () {
