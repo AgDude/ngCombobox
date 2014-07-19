@@ -303,8 +303,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         
         scope.$watch('tags', function (value) {
           if ( value === undefined || value === null || (value.length>0 && value[0] === undefined) ){
-            // If it is undefined, revert the change
-            scope.tags = scope.tagList.items;
+            // If it is undefined, set it to an empty array
+            scope.tags = [];
           }
           else if ( value instanceof Object && value.hasOwnProperty('fromValue') ){
             return tagsFromValue(value.fromValue);
