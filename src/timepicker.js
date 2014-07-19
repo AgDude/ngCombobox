@@ -9,6 +9,7 @@ ngCombobox.directive('timepicker',function(){
       var ap, hr, minute,
         timeMatcher,
         times = [];
+        self = this;
       for (var i=0; i < 24; i++){
           if (i <= 12 && i > 0){ hr = i.toString(); }
           else if (i==0){ hr = '12'; }
@@ -81,7 +82,12 @@ ngCombobox.directive('timepicker',function(){
       };
       
     this.fromValue = function(value){
-      times.filter(function(obj){return obj.value == value; });
+      var deferred = $q.defer();
+      // deferred.resolve(times.filter(function(obj){return obj.value == value; }));
+      self.timeValidator({text: value}).then(function(timeTag){
+        deferred.resolve([timeTag.data]);
+      });
+      return deferred.promise;
     };
       
     },
