@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-19 14:27:09 -0500
+ * Generated at 2014-07-21 07:20:04 -0500
  */
 (function() {
 'use strict';
@@ -642,8 +642,8 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         
         scope.$watch('tags', function (value) {
           if ( value === undefined || value === null || (value.length>0 && value[0] === undefined) ){
-            // If it is undefined, revert the change
-            scope.tags = scope.tagList.items;
+            // If it is undefined, set it to an empty array
+            scope.tags = [];
           }
           else if ( value instanceof Object && value.hasOwnProperty('fromValue') ){
             return tagsFromValue(value.fromValue);
@@ -960,7 +960,7 @@ ngCombobox.directive('timepicker',function(){
           ap = 'PM';
         }
         timeStr = hr + ':' + minute + ' ' + ap;
-        if ( /(^[0-9]|[1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
+        if ( /(^[0-9]|[0-1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
           timeVal = ap == 'PM' ? parseInt(hr) + 12 : hr;
           if ( ap === 'AM' && timeVal === '12'){
             timeVal = '00';

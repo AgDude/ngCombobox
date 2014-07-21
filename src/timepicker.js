@@ -66,7 +66,7 @@ ngCombobox.directive('timepicker',function(){
           ap = 'PM';
         }
         timeStr = hr + ':' + minute + ' ' + ap;
-        if ( /(^[0-9]|[1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
+        if ( /(^[0-9]|[0-1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
           timeVal = ap == 'PM' ? parseInt(hr) + 12 : hr;
           if ( ap === 'AM' && timeVal === '12'){
             timeVal = '00';
