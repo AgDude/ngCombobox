@@ -12,7 +12,7 @@
  * @param {string=} [displayProperty=text] Property to be rendered as the tag label.
  * @param {number=} tabindex Tab order of the control.
  * @param {string=} [placeholder=Add a tag] Placeholder text for the control.
- * @param {stinrg=} [disabledPlaceholder=''] An alternate placeholder to use when the combobox is disabled.
+ * @param {string=} [disabledPlaceholder=''] An alternate placeholder to use when the combobox is disabled.
  * @param {number=} [minLength=3] Minimum length for a new tag.
  * @param {number=} maxLength Maximum length allowed for a new tag.
  * @param {number=} minTags Sets minTags validation error key if the number of tags added is less than minTags.
@@ -58,7 +58,7 @@
  * @param {string=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  */
-ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter) {
+ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined) {
 
   return {
     restrict: 'E',
@@ -266,6 +266,10 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         tagsFromValue = function(value){
           // returns a promise resolving to an array which will also be set on the model
           var deferred = $q.defer();
+          if ( isUndefined(value, true) ){
+            deferred.resolve();
+            return deferred.promise;
+          }
           if ( valueLookup !== undefined){
             valueLookup(value).then(function(result){
               deferred.resolve(result);

@@ -252,7 +252,15 @@ ngCombobox.factory('SuggestionList',function($timeout, $interval, $q, $sce){
       };
       return matches;
     };
-  });
+})
+.factory('isUndefined',function(){
+  return function(value, empty){
+    if ( angular.isUndefined(value) || value === null ){ return true; }
+    if ( value.length === 1 && angular.isUndefined(value[0]) ){ return true; }
+    if ( empty && value.length === 0 ){ return true; }
+    return false;
+  };
+});
 
 
 

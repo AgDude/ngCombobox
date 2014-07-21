@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-21 07:20:04 -0500
+ * Generated at 2014-07-21 10:26:05 -0500
  */
 (function() {
 'use strict';
@@ -335,7 +335,15 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
       };
       return matches;
     };
-  });
+})
+.factory('isUndefined',function(){
+  return function(value, empty){
+    if ( angular.isUndefined(value) || value === null ){ return true; }
+    if ( value.length === 1 && angular.isUndefined(value[0]) ){ return true; }
+    if ( empty && value.length === 0 ){ return true; }
+    return false;
+  };
+});
 
   
 
@@ -351,7 +359,7 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
  * @param {string=} [displayProperty=text] Property to be rendered as the tag label.
  * @param {number=} tabindex Tab order of the control.
  * @param {string=} [placeholder=Add a tag] Placeholder text for the control.
- * @param {stinrg=} [disabledPlaceholder=''] An alternate placeholder to use when the combobox is disabled.
+ * @param {string=} [disabledPlaceholder=''] An alternate placeholder to use when the combobox is disabled.
  * @param {number=} [minLength=3] Minimum length for a new tag.
  * @param {number=} maxLength Maximum length allowed for a new tag.
  * @param {number=} minTags Sets minTags validation error key if the number of tags added is less than minTags.
@@ -397,7 +405,7 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
  * @param {string=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  */
-ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","SuggestionList","TagList","encodeHTML","tagsInputConfig","matchSorter", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter) {
+ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","SuggestionList","TagList","encodeHTML","tagsInputConfig","matchSorter","isUndefined", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined) {
 
   return {
     restrict: 'E',
@@ -605,6 +613,10 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         tagsFromValue = function(value){
           // returns a promise resolving to an array which will also be set on the model
           var deferred = $q.defer();
+          if ( isUndefined(value, true) ){
+            deferred.resolve();
+            return deferred.promise;
+          }
           if ( valueLookup !== undefined){
             valueLookup(value).then(function(result){
               deferred.resolve(result);
