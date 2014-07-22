@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-21 10:26:05 -0500
+ * Generated at 2014-07-22 10:26:06 -0500
  */
 (function() {
 'use strict';
@@ -409,7 +409,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
 
   return {
     restrict: 'E',
-    require: ['ngModel','?timepicker'],
+    require: ['ngModel','?timepicker','^?form'],
     scope: {
       tags: '=ngModel',
       inputValue: '=?value',
@@ -532,6 +532,11 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           scope.source = source;
           ngModelCtrl.$setViewValue(tagsModel);
           ngModelCtrl.$setPristine();
+          
+          //Look for a form controller, and set the initial value
+          if ( ctrls[2] ){
+            ctrls[2].initial_data[attrs.name] = angular.copy(ngModelCtrl.$modelValue);
+          }
         }
         
         

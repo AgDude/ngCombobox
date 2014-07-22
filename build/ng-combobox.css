@@ -37,7 +37,6 @@ combobox .tags {
   combobox .tags .tag-item {
     margin: 2px;
     padding: 0 5px;
-    display: inline-block;
     float: left;
     font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
     height: 26px;

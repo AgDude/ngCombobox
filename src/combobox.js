@@ -62,7 +62,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
 
   return {
     restrict: 'E',
-    require: ['ngModel','?timepicker'],
+    require: ['ngModel','?timepicker','^?form'],
     scope: {
       tags: '=ngModel',
       inputValue: '=?value',
@@ -185,6 +185,11 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           scope.source = source;
           ngModelCtrl.$setViewValue(tagsModel);
           ngModelCtrl.$setPristine();
+          
+          //Look for a form controller, and set the initial value
+          if ( ctrls[2] ){
+            ctrls[2].initial_data[attrs.name] = angular.copy(ngModelCtrl.$modelValue);
+          }
         }
         
         
