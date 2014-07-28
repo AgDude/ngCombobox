@@ -57,6 +57,7 @@
  * @param {string=} [loadingMsg=None] A message to be displayed while asynchronous results load.
  * @param {string=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
+ * @param {boolean=} [autofocus] If true, sets the auto-focus HTML5 attribute on the input element
  */
 ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined) {
 
@@ -111,6 +112,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         loadingMsg: [String, ''],
         secondaryMsg: [String, ''],
         savingMsg: [String, ''],
+        autofocus: [Boolean, false],
       });
       
       $scope.events = new SimplePubSub();
@@ -136,6 +138,10 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           events = scope.events,
           input = element.find('input'),
           htmlOptions = element.find('option');
+        
+        if (options.autofocus){
+          input.attr('autofocus',true);
+        }
         
         options.currentPlaceholder = options.placeholder;
         //override the $isEmpty on ngModel to include an empty Array.

@@ -1,6 +1,35 @@
 'use strict';
 
-ngCombobox.directive('timepicker',function(){
+ngCombobox.factory('timeValidator', function(){
+  return function(tag){
+    var ap, hr, minute,
+      timeStr, timeVal,
+      num = tag.text.replace(/\D/g,''),
+      ap = tag.text.match(/[apAP+]/),
+      
+    ap = (ap == 'p' || ap =="P" || ap=='+') ? 'PM' : 'AM';
+    hr = ( num.length === 3 ) ? num.substr(0,1) : num.substr(0,2);
+    minute =  ( num.length === 3 ) ? num.substr(1,2) : num.substr(2,2);
+    if ( parseInt(hr) > 12 ){
+      hr = parseInt(hr) - 12;
+      ap = 'PM';
+    }
+    timeStr = hr + ':' + minute + ' ' + ap;
+    if ( /(^[0-9]|[0-1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
+      timeVal = ap == 'PM' ? parseInt(hr) + 12 : hr;
+      if ( ap === 'AM' && timeVal === '12'){
+        timeVal = '00';
+      }
+      timeVal += ':' + minute;
+      return {
+        text: timeStr,
+        value: timeVal
+      };
+    }
+    else { return {}; }
+  };
+})
+.directive('timepicker', function(timeValidator){
   return {
     restrict: 'A',
     require: 'combobox',
@@ -52,32 +81,8 @@ ngCombobox.directive('timepicker',function(){
       };
       
       this.timeValidator = function(tag){
-        var ap, hr, minute,
-          timeStr, timeVal,
-          num = tag.text.replace(/\D/g,''),
-          ap = tag.text.match(/[apAP+]/),
-          deferred = $q.defer();
-          
-        ap = (ap == 'p' || ap =="P" || ap=='+') ? 'PM' : 'AM';
-        hr = ( num.length === 3 ) ? num.substr(0,1) : num.substr(0,2);
-        minute =  ( num.length === 3 ) ? num.substr(1,2) : num.substr(2,2);
-        if ( parseInt(hr) > 12 ){
-          hr = parseInt(hr) - 12;
-          ap = 'PM';
-        }
-        timeStr = hr + ':' + minute + ' ' + ap;
-        if ( /(^[0-9]|[0-1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
-          timeVal = ap == 'PM' ? parseInt(hr) + 12 : hr;
-          if ( ap === 'AM' && timeVal === '12'){
-            timeVal = '00';
-          }
-          timeVal += ':' + minute;
-          deferred.resolve({data: {
-            text: timeStr,
-            value: timeVal
-          }});
-        }
-        else { deferred.resolve({}); }
+        var deferred = $q.defer();
+        deferred.resolve({ data: timeValidator(tag) });
         return deferred.promise;
       };
       

@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-22 10:26:06 -0500
+ * Generated at 2014-07-23 15:19:57 -0500
  */
 (function() {
 'use strict';
@@ -404,6 +404,7 @@ ngCombobox.factory('SuggestionList',["$timeout","$interval","$q","$sce", functio
  * @param {string=} [loadingMsg=None] A message to be displayed while asynchronous results load.
  * @param {string=} [secondaryMsg=None] Like loadingMsg, but for use with secondarySource.
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
+ * @param {boolean=} [autofocus] If true, sets the auto-focus HTML5 attribute on the input element
  */
 ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","SuggestionList","TagList","encodeHTML","tagsInputConfig","matchSorter","isUndefined", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined) {
 
@@ -458,6 +459,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         loadingMsg: [String, ''],
         secondaryMsg: [String, ''],
         savingMsg: [String, ''],
+        autofocus: [Boolean, false],
       });
       
       $scope.events = new SimplePubSub();
@@ -483,6 +485,10 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           events = scope.events,
           input = element.find('input'),
           htmlOptions = element.find('option');
+        
+        if (options.autofocus){
+          input.attr('autofocus',true);
+        }
         
         options.currentPlaceholder = options.placeholder;
         //override the $isEmpty on ngModel to include an empty Array.
@@ -911,7 +917,36 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
   };
 }]);
 
-ngCombobox.directive('timepicker',function(){
+ngCombobox.factory('timeValidator', function(){
+  return function(tag){
+    var ap, hr, minute,
+      timeStr, timeVal,
+      num = tag.text.replace(/\D/g,''),
+      ap = tag.text.match(/[apAP+]/),
+      
+    ap = (ap == 'p' || ap =="P" || ap=='+') ? 'PM' : 'AM';
+    hr = ( num.length === 3 ) ? num.substr(0,1) : num.substr(0,2);
+    minute =  ( num.length === 3 ) ? num.substr(1,2) : num.substr(2,2);
+    if ( parseInt(hr) > 12 ){
+      hr = parseInt(hr) - 12;
+      ap = 'PM';
+    }
+    timeStr = hr + ':' + minute + ' ' + ap;
+    if ( /(^[0-9]|[0-1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
+      timeVal = ap == 'PM' ? parseInt(hr) + 12 : hr;
+      if ( ap === 'AM' && timeVal === '12'){
+        timeVal = '00';
+      }
+      timeVal += ':' + minute;
+      return {
+        text: timeStr,
+        value: timeVal
+      };
+    }
+    else { return {}; }
+  };
+})
+.directive('timepicker', ["timeValidator", function(timeValidator){
   return {
     restrict: 'A',
     require: 'combobox',
@@ -963,32 +998,8 @@ ngCombobox.directive('timepicker',function(){
       };
       
       this.timeValidator = function(tag){
-        var ap, hr, minute,
-          timeStr, timeVal,
-          num = tag.text.replace(/\D/g,''),
-          ap = tag.text.match(/[apAP+]/),
-          deferred = $q.defer();
-          
-        ap = (ap == 'p' || ap =="P" || ap=='+') ? 'PM' : 'AM';
-        hr = ( num.length === 3 ) ? num.substr(0,1) : num.substr(0,2);
-        minute =  ( num.length === 3 ) ? num.substr(1,2) : num.substr(2,2);
-        if ( parseInt(hr) > 12 ){
-          hr = parseInt(hr) - 12;
-          ap = 'PM';
-        }
-        timeStr = hr + ':' + minute + ' ' + ap;
-        if ( /(^[0-9]|[0-1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
-          timeVal = ap == 'PM' ? parseInt(hr) + 12 : hr;
-          if ( ap === 'AM' && timeVal === '12'){
-            timeVal = '00';
-          }
-          timeVal += ':' + minute;
-          deferred.resolve({data: {
-            text: timeStr,
-            value: timeVal
-          }});
-        }
-        else { deferred.resolve({}); }
+        var deferred = $q.defer();
+        deferred.resolve({ data: timeValidator(tag) });
         return deferred.promise;
       };
       
@@ -1003,7 +1014,7 @@ ngCombobox.directive('timepicker',function(){
       
     }],
   };
-});
+}]);
 
 
 /**
