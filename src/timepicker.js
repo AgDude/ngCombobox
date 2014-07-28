@@ -14,6 +14,10 @@ ngCombobox.factory('timeValidator', function(){
       hr = parseInt(hr) - 12;
       ap = 'PM';
     }
+    else if ( parseInt(hr) === 0 ){
+      hr = 12;
+      ap = 'AM'
+    }
     timeStr = hr + ':' + minute + ' ' + ap;
     if ( /(^[0-9]|[0-1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr) ){
       timeVal = ap == 'PM' ? parseInt(hr) + 12 : hr;
