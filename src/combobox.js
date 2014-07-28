@@ -473,10 +473,10 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             if (scope.hasFocus) {
               return;
             }
-            scope.hasFocus = true;
-            events.trigger('input-focus');
-
-            scope.$apply();
+            $timeout(function(){
+              scope.hasFocus = true;
+              events.trigger('input-focus'); 
+            });
           })
           .on('blur', function () {
             $timeout(function () {
