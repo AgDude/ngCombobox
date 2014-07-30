@@ -345,6 +345,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('quick', [
     'clean',
+    'jshint',
     'ngtemplates',
     // 'jshint',
     'concat',

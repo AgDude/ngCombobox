@@ -63,7 +63,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
 
   return {
     restrict: 'E',
-    require: ['ngModel','?timepicker','^?form'],
+    require: ['ngModel', '?timepicker', '^?form'],
     scope: {
       tags: '=ngModel',
       inputValue: '=?value',
@@ -81,7 +81,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
     controller: function ($scope, $attrs, $element) {
       tagsInputConfig.load('ngCombobox', $scope, $attrs, {
         placeholder: [String, ''],
-        disabledPlaceholder: [String,''],
+        disabledPlaceholder: [String, ''],
         tabindex: [Number],
         removeTagSymbol: [String, String.fromCharCode(215)],
         removeButton: [Boolean, true],
@@ -97,8 +97,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         addOnBlur: [Boolean, true],
         allowedTagsPattern: [RegExp, /.+/],
         enableEditingLastTag: [Boolean, false],
-        minTags: [Number,0],
-        maxTags: [Number,999],
+        minTags: [Number, 0],
+        maxTags: [Number, 999],
         displayProperty: [String, 'text'],
         valueProperty: [String, 'value'],
         allowLeftoverText: [Boolean, false],
@@ -117,8 +117,10 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
 
       $scope.events = new SimplePubSub();
       $scope.tagList = new TagList($scope.options, $scope.events);
-      $scope.removeTag = function($index){
-        if ( !$scope.isDisabled() ){ $scope.tagList.remove($index); }
+      $scope.removeTag = function ($index) {
+        if (!$scope.isDisabled()) {
+          $scope.tagList.remove($index);
+        }
       };
 
     },
@@ -140,13 +142,13 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           htmlOptions = element.find('option'),
           addOnLookup = {};
 
-        if (options.autofocus){
-          input.attr('autofocus',true);
+        if (options.autofocus) {
+          input.attr('autofocus', true);
         }
         //create a lookup for dealing with lack of keyCodes on Android Chrome
-        addOnLookup[' '] = options.addOnSpace ? KEYS['space'] : undefined;
-        addOnLookup[','] = options.addOnComma  ? KEYS['comma'] : undefined;
-        addOnLookup['.'] = options.addOnPeriod  ? KEYS['period'] : undefined;
+        addOnLookup[' '] = options.addOnSpace ? KEYS.space : undefined;
+        addOnLookup[','] = options.addOnComma ? KEYS.comma : undefined;
+        addOnLookup['.'] = options.addOnPeriod ? KEYS.period : undefined;
 
         options.currentPlaceholder = options.placeholder;
         //override the $isEmpty on ngModel to include an empty Array.
@@ -155,31 +157,31 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         };
 
         //set options for timepicker
-        if ( timepickerCtrl !== undefined ){
+        if (timepickerCtrl !== undefined) {
           scope.source = timepickerCtrl.timeMatcher;
           scope.newTagAdded = timepickerCtrl.timeValidator;
           valueLookup = timepickerCtrl.fromValue;
-          if ( !attrs.hasOwnProperty('show-total') ){
+          if (!attrs.hasOwnProperty('show-total')) {
             scope.options.showTotal = false;
           }
-          if ( !attrs.hasOwnProperty('allowNew') ){
+          if (!attrs.hasOwnProperty('allowNew')) {
             scope.options.allowNew = true;
           }
-          if ( !attrs.hasOwnProperty('removeButton') ){
-          }
+//          if (!attrs.hasOwnProperty('removeButton')) {
+//          }
           scope.options.minSearchLength = 1;
           scope.options.confirmNew = false;
           scope.options.addOnPeriod = false;
           scope.options.replaceSpacesWithDashes = false;
         }
-        else{
+        else {
           valueLookup = scope.valueLookup;
         }
 
         if (htmlOptions.length > 0) {
           var tagsModel = [],
             source = [];
-          if ( !ngModelCtrl.$isEmpty() ) {
+          if (!ngModelCtrl.$isEmpty()) {
             tagsModel = ngModelCtrl.$viewValue;
           }
           angular.forEach(htmlOptions, function (opt, index) {
@@ -198,18 +200,18 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           ngModelCtrl.$setPristine();
 
           //Look for a form controller, and set the initial value
-          if ( !angular.isUndefined(ctrls[2]) && !angular.isUndefined(ctrls[2].initial_data) ){
+          if (!angular.isUndefined(ctrls[2]) && !angular.isUndefined(ctrls[2].initial_data)) {
             ctrls[2].initial_data[attrs.name] = angular.copy(ngModelCtrl.$modelValue);
           }
         }
 
 
-        scope.isDisabled = function(){
-          if ( !angular.isDefined(attrs.disabled) || attrs.disabled == false){
+        scope.isDisabled = function () {
+          if (!angular.isDefined(attrs.disabled) || attrs.disabled === false) {
             return false;
           }
-          if ( options.disabledPlaceholder ){
-            options.currentPlaceholder =  options.disabledPlaceholder;
+          if (options.disabledPlaceholder) {
+            options.currentPlaceholder = options.disabledPlaceholder;
           }
           return true;
         };
@@ -243,32 +245,32 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             ngModelCtrl.$setValidity('leftoverText', true);
           })
           .on('input-blur', function () {
-            if ( options.allowNew && !options.confirmNew ) {
-              if ( options.addOnBlur ) {
+            if (options.allowNew && !options.confirmNew) {
+              if (options.addOnBlur) {
                 scope.tagList.addText(scope.newTag.text);
               }
 
               ngModelCtrl.$setValidity('leftoverText', options.allowLeftoverText ? true : !scope.newTag.text);
             }
           })
-          .on('new-tag-added', function(tag){
-            if ( scope.newTagAdded === undefined){
+          .on('new-tag-added', function (tag) {
+            if (scope.newTagAdded === undefined) {
               return;
             }
             suggestionList.confirm = false;
-            if ( options.savingMsg ){
+            if (options.savingMsg) {
               suggestionList.newSaving = true;
             }
-            scope.newTagAdded(tag).then(function(result){
-              if ( result === undefined){
+            scope.newTagAdded(tag).then(function (result) {
+              if (result === undefined) {
                 return;
               }
-              if ( result.hasOwnProperty('data') ){
-                for ( var prop in result.data ){
+              if (result.hasOwnProperty('data')) {
+                for (var prop in result.data) {
                   tag[prop] = result.data[prop];
                 }
               }
-            })["finally"](function(){
+            })['finally'](function () {
               suggestionList.newSaving = false;
             });
           });
@@ -278,26 +280,28 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           invalid: null,
           readonly: false
         };
-        tagsFromValue = function(value){
+        tagsFromValue = function (value) {
           // returns a promise resolving to an array which will also be set on the model
           var deferred = $q.defer();
-          if ( isUndefined(value, true) ){
+          if (isUndefined(value, true)) {
             deferred.resolve();
             return deferred.promise;
           }
-          if ( valueLookup !== undefined){
-            valueLookup(value).then(function(result){
+          if (valueLookup !== undefined) {
+            valueLookup(value).then(function (result) {
               deferred.resolve(result);
             });
           }
-          else if (scope.source instanceof Array){
-            deferred.resolve(scope.source.filter(function(obj){
-              return obj[options.valueProperty] == value || (!isNaN(value) && obj[options.valueProperty] == value.toString());
+          else if (scope.source instanceof Array) {
+            deferred.resolve(scope.source.filter(function (obj) {
+              return obj[options.valueProperty] === value || (!isNaN(value) && obj[options.valueProperty] === value.toString());
             }));
           }
-          else{ deferred.resolve([]); }
+          else {
+            deferred.resolve([]);
+          }
 
-          deferred.promise.then(function(tagsModel){
+          deferred.promise.then(function (tagsModel) {
             ngModelCtrl.$setViewValue(tagsModel);
             ngModelCtrl.$setPristine();
           });
@@ -308,7 +312,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           return tag[options.displayProperty].trim();
         };
 
-        scope.addNewTag = function(){
+        scope.addNewTag = function () {
           scope.tagList.addText(scope.newTag.text);
         };
 
@@ -321,14 +325,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         };
 
         scope.$watch('tags', function (value) {
-          if ( value === undefined || value === null || (value.length>0 && value[0] === undefined) ){
+          if (value === undefined || value === null || (value.length > 0 && value[0] === undefined)) {
             // If it is undefined, set it to an empty array
             scope.tags = [];
           }
-          else if ( value instanceof Object && value.hasOwnProperty('fromValue') ){
+          else if (value instanceof Object && value.hasOwnProperty('fromValue')) {
             return tagsFromValue(value.fromValue);
           }
-          else{
+          else {
             scope.tags = makeObjectArray(value, options.displayProperty);
           }
           scope.tagList.items = scope.tags;
@@ -344,14 +348,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           sourceFunc = scope.source;
         } else {
           sourceFunc = getMatches('source');
-        };
+        }
 
         if (typeof (scope.secondarySource) === 'function') {
           secondaryFunc = scope.secondarySource;
         }
-        else if ( scope.secondarySource !== undefined ){
+        else if (scope.secondarySource !== undefined) {
           secondaryFunc = getMatches('secondarySource');
-        };
+        }
 
         suggestionList = new SuggestionList(sourceFunc, secondaryFunc, options);
         scope.suggestionList = suggestionList;
@@ -364,7 +368,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           if (suggestionList.visible) {
             suggestionList.reset();
           }
-          else if ( !scope.isDisabled() ){
+          else if (!scope.isDisabled()) {
             suggestionList.load(scope.newTag.text, scope.tags, true);
           }
         };
@@ -417,7 +421,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
               handled = false,
               shouldAdd, shouldRemove, shouldBlock;
 
-            if ( key === 0 ){
+            if (key === 0) {
               key = addOnLookup[scope.newTag.text.slice(-1)];
             }
 
@@ -470,7 +474,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             }
 
             if (handled) {
-              if (key !== KEYS.tab ){
+              if (key !== KEYS.tab) {
                 e.preventDefault();
               }
               scope.$apply();
@@ -481,7 +485,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             if (scope.hasFocus) {
               return;
             }
-            $timeout(function(){
+            $timeout(function () {
               scope.hasFocus = true;
               events.trigger('input-focus');
             });
@@ -505,20 +509,19 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             input[0].focus();
           });
 
-        if ( scope.inputValue !== undefined ){
+        if (scope.inputValue !== undefined) {
           //Set the initial model value based on JSON or primitive from value attr
-          var thisVal,
-            setInitialData,
+          var setInitialData,
             initialData = scope.inputValue;
 
-          if ( !(initialData instanceof Array) ){
+          if (!(initialData instanceof Array)) {
             initialData = [initialData];
           }
 
 
-          setInitialData = function(source){
-            for ( var i=0; i<initialData.length; i++){
-              if ( !tagsFromValue(initialData[i]) ){
+          setInitialData = function (source) {
+            for (var i = 0; i < initialData.length; i++) {
+              if (!tagsFromValue(initialData[i])) {
                 scope.newTag.text = initialData[i];
                 scope.addNewTag();
                 scope.newTag.text = '';
@@ -526,11 +529,11 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             }
           };
 
-          if ( scope.source.length === 0 ){
+          if (scope.source.length === 0) {
             var listener;
             options.currentPlaceholder = 'Loading Initial Data...';
-            listener = scope.$watch('source', function(newVal,oldVal){
-              if (newVal.length > 0){
+            listener = scope.$watch('source', function (newVal, oldVal) {
+              if (newVal.length > 0) {
                 setInitialData();
                 listener();
               }
@@ -540,10 +543,10 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           element.removeAttr('value');
         }
 
-        if ( !(scope.tags instanceof Array) && scope.tags !== undefined ){
+        if (!(scope.tags instanceof Array) && scope.tags !== undefined) {
           //We got a single value, look for it in the source
           tagsFromValue(scope.tags);
-        };
+        }
 
         documentClick = function () {
           if (suggestionList.visible) {
@@ -558,21 +561,20 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           $document.off('click', documentClick);
         });
 
-        function getMatches(sourceProp){
+        function getMatches(sourceProp) {
           return function getMatches($query) {
-              var term = $query.$query.toLowerCase(),
-                containsMatcher = new RegExp(term, 'i'),
-                deferred = $q.defer(),
-                matched = grep(scope[sourceProp], function (value) {
-                  return containsMatcher.test(value[options.displayProperty]);
-                });
-              var sortFunc = scope.sortFunc || matchSorter;
-              matched.sort(sortFunc(term, options.displayProperty));
-              deferred.resolve(matched);
-              return deferred.promise;
+            var term = $query.$query.toLowerCase(),
+              containsMatcher = new RegExp(term, 'i'),
+              deferred = $q.defer(),
+              matched = grep(scope[sourceProp], function (value) {
+                return containsMatcher.test(value[options.displayProperty]);
+              });
+            var sortFunc = scope.sortFunc || matchSorter;
+            matched.sort(sortFunc(term, options.displayProperty));
+            deferred.resolve(matched);
+            return deferred.promise;
           };
-        };
-
+        }
       }
     }
   };
