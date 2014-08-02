@@ -142,15 +142,19 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           htmlOptions = element.find('option'),
           addOnLookup = {};
 
+        //Intuitive support of html5 autofocus
         if (options.autofocus) {
           input.attr('autofocus', true);
         }
+
         //create a lookup for dealing with lack of keyCodes on Android Chrome
         addOnLookup[' '] = options.addOnSpace ? KEYS.space : undefined;
         addOnLookup[','] = options.addOnComma ? KEYS.comma : undefined;
         addOnLookup['.'] = options.addOnPeriod ? KEYS.period : undefined;
 
+        //Hold onto the initial placeholder, because we might change it when the combobox is disabled
         options.currentPlaceholder = options.placeholder;
+
         //override the $isEmpty on ngModel to include an empty Array.
         ngModelCtrl.$isEmpty = function (value) {
           return angular.isUndefined(value) || value === '' || value === null || value !== value || value.length === 0;
@@ -207,10 +211,10 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
 
 
         scope.isDisabled = function () {
-          if (!angular.isDefined(attrs.disabled) || attrs.disabled === false) {
+          if ( !angular.isDefined(attrs.disabled) || attrs.disabled === false ) {
             return false;
           }
-          if (options.disabledPlaceholder) {
+          if ( options.disabledPlaceholder ) {
             options.currentPlaceholder = options.disabledPlaceholder;
           }
           return true;
@@ -280,31 +284,41 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           invalid: null,
           readonly: false
         };
+
         tagsFromValue = function (value) {
-          // returns a promise resolving to an array which will also be set on the model
+          // return a promise resolving to an array which will also be set on the model
           var deferred = $q.defer();
-          if (isUndefined(value, true)) {
-            deferred.resolve();
+          deferred.promise.then(function (tagsModel) {
+            ngModelCtrl.$setViewValue(tagsModel);
+            ngModelCtrl.$setPristine();
+          });
+
+          if ( isUndefined(value, true) ) {
+            deferred.resolve([]);
             return deferred.promise;
           }
-          if (valueLookup !== undefined) {
+          if ( value.hasOwnProperty('fromValue') ){
+            value = value.fromValue;
+            if ( isUndefined(value, true) ) {
+              deferred.resolve([]);
+              return deferred.promise;
+            }
+          }
+          if ( !isUndefined(valueLookup)) {
             valueLookup(value).then(function (result) {
               deferred.resolve(result);
             });
           }
-          else if (scope.source instanceof Array) {
+          else if ( scope.source instanceof Array ) {
             deferred.resolve(scope.source.filter(function (obj) {
-              return obj[options.valueProperty] === value || (!isNaN(value) && obj[options.valueProperty] === value.toString());
+              var thisValue = obj[options.valueProperty];
+              return !angular.isUndefined(thisValue) && thisValue.toString() === value.toString();
             }));
           }
           else {
             deferred.resolve([]);
           }
 
-          deferred.promise.then(function (tagsModel) {
-            ngModelCtrl.$setViewValue(tagsModel);
-            ngModelCtrl.$setPristine();
-          });
           return deferred.promise;
         };
 
@@ -456,14 +470,16 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
               scope.tagList.addText(scope.newTag.text);
 
               handled = true;
-            } else if (shouldRemove) {
+            }
+            else if (shouldRemove) {
               var tag = scope.tagList.removeLast();
               if (tag && options.enableEditingLastTag) {
                 scope.newTag.text = tag[options.displayProperty];
               }
 
               handled = true;
-            } else if (shouldBlock) {
+            }
+            else if (shouldBlock) {
               scope.newTag.text = 'Invalid Entry...';
               scope.newTag.readonly = true;
               scope.$apply();
@@ -545,6 +561,9 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
 
         if (!(scope.tags instanceof Array) && scope.tags !== undefined) {
           //We got a single value, look for it in the source
+          if (scope.tags instanceof Object && scope.tags.hasOwnProperty('fromValue')) {
+            return tagsFromValue(scope.tags);
+          }
           tagsFromValue(scope.tags);
         }
 
