@@ -263,7 +263,7 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
       if (angular.isUndefined(value) || value === null) {
         return true;
       }
-      if (value.length === 1 && angular.isUndefined(value[0])) {
+      if (value instanceof Array && value.length === 1 && angular.isUndefined(value[0])) {
         return true;
       }
       if (empty && value.length === 0) {

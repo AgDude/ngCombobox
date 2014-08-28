@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-08-28 09:42:22 -0500
+ * Generated at 2014-08-28 14:30:40 -0500
  */
 (function() {
 'use strict';
@@ -344,7 +344,7 @@ ngCombobox.factory('SuggestionList', ["$timeout","$interval","$q","$sce", functi
       if (angular.isUndefined(value) || value === null) {
         return true;
       }
-      if (value.length === 1 && angular.isUndefined(value[0])) {
+      if (value instanceof Array && value.length === 1 && angular.isUndefined(value[0])) {
         return true;
       }
       if (empty && value.length === 0) {
