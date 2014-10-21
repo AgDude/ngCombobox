@@ -218,20 +218,32 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
       return self;
     };
   })
-  .factory('matchSorter', function () {
+  .factory('numberSorter', function(){
+    return function(a, b, sortProp){
+      sortProp = sortProp || 'text';
+      var intA = parseInt(a[sortProp]),
+        intB = parseInt(b[sortProp]);
+      if ( !isNaN(intA) && ! isNaN(intB) ){
+        return intA - intB;
+      }
+      if ( a[sortProp].toLowerCase() > b[sortProp].toLowerCase() ){ return -1; }
+      if ( a[sortProp].toLowerCase() < b[sortProp].toLowerCase() ){ return 1; }
+      return 0;
+    };
+  })
+  .factory('matchSorter', function (numberSorter) {
     return function (term, displayProperty) {
       displayProperty = displayProperty === undefined ? 'text' : displayProperty;
       if (!term) {
-        return function (a, b) {
-          //sort alphabetically by displayProperty
-          if (a[displayProperty].toLowerCase() < b[displayProperty].toLowerCase()) { return -1; }
-          if (a[displayProperty].toLowerCase() > b[displayProperty].toLowerCase()) { return 1; }
-          return 0;
-        };
+        return function(a,b){ return numberSorter(a, b, displayProperty); };
       }
       return function (a, b) {
         if (a[displayProperty].toLowerCase().indexOf(term) === 0 || b[displayProperty].toLowerCase().indexOf(term) === 0) {
-          return a[displayProperty].toLowerCase().indexOf(term) - b[displayProperty].toLowerCase().indexOf(term);
+          var indexDiff = a[displayProperty].toLowerCase().indexOf(term) - b[displayProperty].toLowerCase().indexOf(term);
+          if ( indexDiff === 0 ){
+            return numberSorter(a, b, displayProperty);
+          }
+          return indexDiff;
         }
         return 0;
       };
@@ -266,7 +278,7 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
       if (value instanceof Array && value.length === 1 && angular.isUndefined(value[0])) {
         return true;
       }
-      if (empty && value.length === 0) {
+      if (empty && value instanceof Array && value.length === 0) {
         return true;
       }
       return false;

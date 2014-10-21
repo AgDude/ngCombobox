@@ -274,7 +274,11 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
                   tag[prop] = result.data[prop];
                 }
               }
-            })['finally'](function () {
+            })
+              .catch(function(){
+                //If the callback failed, remove new tag
+                scope.tagList.items.pop();
+              })['finally'](function () {
               suggestionList.newSaving = false;
             });
           });
