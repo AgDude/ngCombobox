@@ -327,6 +327,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         };
 
         scope.getDisplayText = function (tag) {
+          if ( angular.isUndefined(tag) ){ return ''; }
           return tag[options.displayProperty].trim();
         };
 

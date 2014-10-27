@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-10-27 10:18:26 -0500
+ * Generated at 2014-10-27 10:35:44 -0500
  */
 (function() {
 'use strict';
@@ -703,6 +703,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         };
 
         scope.getDisplayText = function (tag) {
+          if ( angular.isUndefined(tag) ){ return ''; }
           return tag[options.displayProperty].trim();
         };
 
