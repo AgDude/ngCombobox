@@ -221,13 +221,22 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
   .factory('numberSorter', function(){
     return function(a, b, sortProp){
       sortProp = sortProp || 'text';
+
       var intA = parseInt(a[sortProp]),
         intB = parseInt(b[sortProp]);
       if ( !isNaN(intA) && ! isNaN(intB) ){
+        // sort as numbers
         return intA - intB;
       }
-      if ( a[sortProp].toLowerCase() > b[sortProp].toLowerCase() ){ return -1; }
-      if ( a[sortProp].toLowerCase() < b[sortProp].toLowerCase() ){ return 1; }
+      // put numbers first
+      else if ( !isNaN(intA) ){
+        return -1;
+      }
+      else if ( !isNaN(intB) ){
+        return 1;
+      }
+      if ( a[sortProp].toLowerCase() > b[sortProp].toLowerCase() ){ return 1; }
+      if ( a[sortProp].toLowerCase() < b[sortProp].toLowerCase() ){ return -1; }
       return 0;
     };
   })

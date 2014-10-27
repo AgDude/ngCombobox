@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-10-10 10:38:39 -0500
+ * Generated at 2014-10-27 10:18:26 -0500
  */
 (function() {
 'use strict';
@@ -302,13 +302,22 @@ ngCombobox.factory('SuggestionList', ["$timeout","$interval","$q","$sce", functi
   .factory('numberSorter', function(){
     return function(a, b, sortProp){
       sortProp = sortProp || 'text';
+
       var intA = parseInt(a[sortProp]),
         intB = parseInt(b[sortProp]);
       if ( !isNaN(intA) && ! isNaN(intB) ){
+        // sort as numbers
         return intA - intB;
       }
-      if ( a[sortProp].toLowerCase() > b[sortProp].toLowerCase() ){ return -1; }
-      if ( a[sortProp].toLowerCase() < b[sortProp].toLowerCase() ){ return 1; }
+      // put numbers first
+      else if ( !isNaN(intA) ){
+        return -1;
+      }
+      else if ( !isNaN(intB) ){
+        return 1;
+      }
+      if ( a[sortProp].toLowerCase() > b[sortProp].toLowerCase() ){ return 1; }
+      if ( a[sortProp].toLowerCase() < b[sortProp].toLowerCase() ){ return -1; }
       return 0;
     };
   })
