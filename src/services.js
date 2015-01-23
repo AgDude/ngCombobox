@@ -93,7 +93,7 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
           if (self.more > 100) {
             self.more = 'many';
           }
-          self.items = items.slice(0, options.maxResultsToShow);
+          self.items = items.slice(0, options.maxResultsToShow) || [];
 
           if (self.items.length > 0) {
             self.show();

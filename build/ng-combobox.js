@@ -2,12 +2,12 @@
  * ngCombobox v2.0.1
  * 
  *
- * Copyright (c) 2014-2014 Nate Dudenhoeffer
+ * Copyright (c) 2014-2015 Nate Dudenhoeffer
  *
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-10-27 10:35:44 -0500
+ * Generated at 2015-01-23 08:51:04 -0600
  */
 (function() {
 'use strict';
@@ -174,7 +174,7 @@ ngCombobox.factory('SuggestionList', ["$timeout","$interval","$q","$sce", functi
           if (self.more > 100) {
             self.more = 'many';
           }
-          self.items = items.slice(0, options.maxResultsToShow);
+          self.items = items.slice(0, options.maxResultsToShow) || [];
 
           if (self.items.length > 0) {
             self.show();
@@ -604,7 +604,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           })
           .on('tag-added tag-removed', function () {
             ngModelCtrl.$setViewValue(scope.tags);
-            scope.$eval(attrs.ngChange);
+            scope.$parent.$eval(attrs.ngChange);
           })
           .on('tag-added invalid-tag', function () {
             suggestionList.reset();
@@ -669,7 +669,19 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           // return a promise resolving to an array which will also be set on the model
           var deferred = $q.defer();
           deferred.promise.then(function (tagsModel) {
-            ngModelCtrl.$setViewValue(tagsModel);
+            var newViewValue = [],
+              oldViewValue = ngModelCtrl.$viewValue;
+            if ( oldViewValue instanceof Array ){
+              angular.forEach(oldViewValue, function(item, index){
+                if (item !== value ){ newViewValue.push(item); }
+              });
+            };
+            angular.forEach(tagsModel, function(item){
+              newViewValue.push(item);
+            });
+            // remove duplicates
+            newViewValue = newViewValue.filter(function(item, index, self){ return self.indexOf(item) === index; });
+            ngModelCtrl.$setViewValue(newViewValue);
             ngModelCtrl.$setPristine();
           });
 
@@ -1210,7 +1222,9 @@ ngCombobox.provider('tagsInputConfig', function () {
 
 /* HTML templates */
 ngCombobox.run(["$templateCache", function($templateCache) {
-    $templateCache.put('ngCombobox/combobox.html',
+  'use strict';
+
+  $templateCache.put('ngCombobox/combobox.html',
     "<div class=\"host\" ng-class=\"{'input-group': options.showAll }\" tabindex=\"-1\" ti-transclude-prepend=\"\"><div class=\"tags\" ng-class=\"{'focused': hasFocus, 'disabled':isDisabled()}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span>{{getDisplayText(tag)}}</span> <a class=\"remove-button\" ng-click=\"removeTag($index)\" ng-if=\"options.removeButton\">{{options.removeTagSymbol}}</a></li></ul><input class=\"input\" placeholder=\"{{tags.length < options.maxTags && options.currentPlaceholder || '' }}\" tabindex=\"{{options.tabindex}}\" ng-model=\"newTag.text\" ng-readonly=\"newTag.readonly\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid, 'input-narrow' : tags.length >= options.maxTags}\" ng-disabled=\"isDisabled()\" ti-autosize=\"\"></div><div><div class=\"autocomplete clearfix\" ng-show=\"suggestionList.visible || suggestionList.msgVisible()\"><!-- Messages --><ul class=\"suggestion-list\" ng-hide=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-click=\"addNewTag()\" ng-show=\"suggestionList.confirm\">{{ suggestionList.confirm }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.newSaving\">{{ options.savingMsg }}</li><li class=\"suggestion-item\" ng-show=\"suggestionList.loading && !suggestionList.confirm\">{{ suggestionList.msg }}</li></ul><!-- Actual Suggestions --><ul class=\"suggestion-list\" ng-show=\"suggestionList.visible\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by $id(item)\" ng-class=\"{selected: item == suggestionList.selected}\" ng-click=\"addSuggestion()\" ng-mouseenter=\"suggestionList.select($index)\" ng-bind-html=\"highlight(item)\"></li><li class=\"suggestion-item\" ng-show=\"options.showTotal && suggestionList.more\">... and {{ suggestionList.more }} more</li></ul></div></div><span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList(); $event.stopPropagation();\"><span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><span class=\"ui-button-text\" style=\"padding: 0px\">&nbsp;</span></span></span></div>"
   );
 }]);

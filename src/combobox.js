@@ -228,7 +228,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           })
           .on('tag-added tag-removed', function () {
             ngModelCtrl.$setViewValue(scope.tags);
-            scope.$eval(attrs.ngChange);
+            scope.$parent.$eval(attrs.ngChange);
           })
           .on('tag-added invalid-tag', function () {
             suggestionList.reset();
@@ -293,7 +293,19 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           // return a promise resolving to an array which will also be set on the model
           var deferred = $q.defer();
           deferred.promise.then(function (tagsModel) {
-            ngModelCtrl.$setViewValue(tagsModel);
+            var newViewValue = [],
+              oldViewValue = ngModelCtrl.$viewValue;
+            if ( oldViewValue instanceof Array ){
+              angular.forEach(oldViewValue, function(item, index){
+                if (item !== value ){ newViewValue.push(item); }
+              });
+            };
+            angular.forEach(tagsModel, function(item){
+              newViewValue.push(item);
+            });
+            // remove duplicates
+            newViewValue = newViewValue.filter(function(item, index, self){ return self.indexOf(item) === index; });
+            ngModelCtrl.$setViewValue(newViewValue);
             ngModelCtrl.$setPristine();
           });
 
