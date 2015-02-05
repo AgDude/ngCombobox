@@ -349,7 +349,7 @@ module.exports = function (grunt) {
     'clean',
     'jshint',
     'ngtemplates',
-    // 'jshint',
+    'karma',
     'concat',
     'ngAnnotate',
     'uglify',

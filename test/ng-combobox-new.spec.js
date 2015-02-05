@@ -41,10 +41,10 @@ describe('combobox directive', function () {
     var options = jQuery.makeArray(arguments).join(' ');
     var template = '<combobox ng-model="tags_data" ' + options + '>' +
         '<select style="display:none;">' +
-          '<option value="1">one</option>' +
-          '<option value="2">two</option>' +
-          '<option value="3" selected="selected">three</option>' +
-          '<option value="4">four</option>' +
+          '<option value="1">Tag1</option>' +
+          '<option value="2">Tag2</option>' +
+          '<option value="3">Tag3</option>' +
+          '<option value="4">Tag4</option>' +
         '</select>' +
       '</combobox>';
 
@@ -148,23 +148,48 @@ describe('combobox directive', function () {
   //  });
   //});
 
-  describe('loading initial data', function(){
+  describe('loading initial data', function() {
 
-    it('should set a single value', function(){
+    it('should set a single value', function () {
       $scope.intSource = generateTags(10);
 
       compile('value="2"', 'source="intSource"');
       expect($scope.tags_data.length).toEqual(1);
       expect($scope.tags_data[0].text).toEqual('Tag2');
     });
-  });
 
-  //it('should set initial data to two values', function(){
-  //    $scope.intSource = generateTags(10);
-  //
-  //    compile('value="[2, 4]"', 'source="intSource"');
-  //    expect($scope.tags_data.length).toEqual(2);
-  //    expect($scope.tags_data[0].text).toEqual('Tag2');
-  //    expect($scope.tags_data[0].text).toEqual('Tag4');
-  //  });
+    it('should set initial data to two values', function () {
+      $scope.intSource = generateTags(10);
+
+      compile('value="[2, 4]"', 'source="intSource"');
+      expect($scope.tags_data.length).toEqual(2);
+      expect($scope.tags_data[0].text).toEqual('Tag2');
+      expect($scope.tags_data[1].text).toEqual('Tag4');
+    });
+
+    it('should set initial data with htmlOptions source', function () {
+
+      compileWithHtmlOptions('value="2"');
+      expect($scope.tags_data.length).toEqual(1);
+      expect($scope.tags_data[0].text).toEqual('Tag2');
+    });
+
+    it('should set initial data with htmlOptions source without duplicates', function () {
+      $scope.tags_data = [{text:'Tag2', value:2}];
+
+      compileWithHtmlOptions('value="2"');
+      expect($scope.tags_data.length).toEqual(1);
+      expect($scope.tags_data[0].text).toEqual('Tag2');
+    });
+
+    it('should set initial data, without duplicate', function () {
+      $scope.intSource = generateTags(10);
+      $scope.intSource.push({text:'duplicate', value:2 });
+      //$scope.tags_data = [];
+
+      compile('value="[2, 4]"', 'source="intSource"');
+      expect($scope.tags_data.length).toEqual(2);
+      expect($scope.tags_data[0].text).toEqual('Tag2');
+    });
+  });
 });

@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2015-02-05 10:18:04 -0600
+ * Generated at 2015-02-05 15:44:11 -0600
  */
 (function() {
 'use strict';
@@ -570,7 +570,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
             optObj[options.valueProperty] = opt.value;
             optObj[options.displayProperty] = opt.label || angular.element(opt).text(); // IE9 doesn't accept opt.label
             source.push(optObj);
-            if (opt.selected) {
+            if ( opt.hasAttribute('selected') ) {
               tagsModel.push(optObj);
             }
             angular.element(opt).remove();
@@ -668,9 +668,11 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           // return a promise resolving to an array which will also be set on the model
           var deferred = $q.defer();
           deferred.promise.then(function (tagsModel) {
+            //ngModelCtrl.$setViewValue(tagsModel);
             var newViewValue = [],
               oldViewValue = ngModelCtrl.$viewValue;
             if ( oldViewValue instanceof Array ){
+              // This is intended to preserve the initial value of the tags Array, and push new values to it
               angular.forEach(oldViewValue, function(item, index){
                 if (item !== value ){ newViewValue.push(item); }
               });
@@ -678,8 +680,13 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
             angular.forEach(tagsModel, function(item){
               newViewValue.push(item);
             });
-            // remove duplicates
-            newViewValue = newViewValue.filter(function(item, index, self){ return self.indexOf(item) === index; });
+            // remove duplicates based on valueProperty
+            newViewValue = newViewValue.filter(
+              function(item, index, self){
+                return self.map(function(inner){ return inner[options.valueProperty]; }).indexOf(item[options.valueProperty]) === index;
+              }
+
+            );
             ngModelCtrl.$setViewValue(newViewValue);
             ngModelCtrl.$setPristine();
           });
