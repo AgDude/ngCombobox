@@ -4,14 +4,15 @@ describe('combobox directive', function () {
   var $compile, $scope, $timeout, $document,
     isolateScope, element;
 
-  beforeEach(function () {
-    module('ngTagsInput');
+  beforeEach(function(){
+    module('ngCombobox');
 
-    inject(function (_$compile_, _$rootScope_, _$document_, _$timeout_) {
+    inject(function (_$compile_, _$rootScope_, _$document_, _$timeout_, $templateCache) {
       $compile = _$compile_;
       $scope = _$rootScope_;
       $document = _$document_;
       $timeout = _$timeout_;
+
     });
 
     jasmine.addMatchers(customMatchers);
@@ -20,7 +21,7 @@ describe('combobox directive', function () {
   function compile() {
     var options = jQuery.makeArray(arguments)
       .join(' ');
-    var template = '<combobox ng-model="tags" ' + options + '></combobox>';
+    var template = '<combobox ng-model="tags_data" ' + options + '></combobox>';
 
     element = $compile(template)($scope);
     $scope.$digest();
@@ -30,7 +31,7 @@ describe('combobox directive', function () {
   function compileWithForm() {
     var options = jQuery.makeArray(arguments)
       .join(' ');
-    var template = '<form name="form"><combobox ng-model="tags" ' + options + '></combobox></form>';
+    var template = '<form name="form"><combobox ng-model="tags_data" ' + options + '></combobox></form>';
 
     element = $compile(template)($scope);
     $scope.$digest();
@@ -116,7 +117,7 @@ describe('combobox directive', function () {
   describe('basic features', function () {
     it('renders the correct number of tags', function () {
       // Arrange
-      $scope.tags = [{
+      $scope.tags_data = [{
         text: 'Tag1 '
       }, {
         text: ' Tag2'
@@ -149,7 +150,7 @@ describe('combobox directive', function () {
       newTag(' Tag3 ');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'Tag1'
         }, {
@@ -161,7 +162,7 @@ describe('combobox directive', function () {
 
     it('removes a tag when the remove button is clicked', function () {
       // Arrange
-      $scope.tags = generateTags(3);
+      $scope.tags_data = generateTags(3);
       compile();
 
       // Act
@@ -169,7 +170,7 @@ describe('combobox directive', function () {
         .click();
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'Tag1'
         }, {
@@ -201,7 +202,7 @@ describe('combobox directive', function () {
       newTag('Foo');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foo'
         }]);
@@ -251,13 +252,13 @@ describe('combobox directive', function () {
 
     it('converts an array of strings into an array of objects', function () {
       // Arrange
-      $scope.tags = ['Item1', 'Item2', 'Item3'];
+      $scope.tags_data = ['Item1', 'Item2', 'Item3'];
 
       // Act
       compile();
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'Item1'
         }, {
@@ -370,7 +371,7 @@ describe('combobox directive', function () {
       newTag('foo', KEYS.enter);
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foo'
         }]);
@@ -384,7 +385,7 @@ describe('combobox directive', function () {
       newTag('foo', KEYS.enter);
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([]);
     });
 
@@ -407,7 +408,7 @@ describe('combobox directive', function () {
       newTag('foo', KEYS.space);
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foo'
         }]);
@@ -421,7 +422,7 @@ describe('combobox directive', function () {
       newTag('foo', KEYS.space);
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([]);
     });
 
@@ -444,7 +445,7 @@ describe('combobox directive', function () {
       newTag('foo', KEYS.comma);
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foo'
         }]);
@@ -458,7 +459,7 @@ describe('combobox directive', function () {
       newTag('foo', KEYS.comma);
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([]);
     });
 
@@ -513,7 +514,7 @@ describe('combobox directive', function () {
         $timeout.flush();
 
         // Assert
-        expect($scope.tags)
+        expect($scope.tags_data)
           .toEqual([{
             text: 'foo'
           }]);
@@ -531,7 +532,7 @@ describe('combobox directive', function () {
         $timeout.flush();
 
         // Assert
-        expect($scope.tags)
+        expect($scope.tags_data)
           .toEqual([{
             text: 'foo'
           }]);
@@ -549,7 +550,7 @@ describe('combobox directive', function () {
         $timeout.flush();
 
         // Assert
-        expect($scope.tags)
+        expect($scope.tags_data)
           .toEqual([]);
       });
     });
@@ -565,7 +566,7 @@ describe('combobox directive', function () {
           .triggerHandler('blur');
 
         // Assert
-        expect($scope.tags)
+        expect($scope.tags_data)
           .toEqual([]);
       });
     });
@@ -595,7 +596,7 @@ describe('combobox directive', function () {
   describe('remove-tag-symbol option', function () {
     it('sets the remove button text', function () {
       // Arrange/Act
-      $scope.tags = generateTags(1);
+      $scope.tags_data = generateTags(1);
 
       // Act
       compile('remove-tag-symbol="X"');
@@ -625,7 +626,7 @@ describe('combobox directive', function () {
       newTag('foo bar');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foo-bar'
         }]);
@@ -639,7 +640,7 @@ describe('combobox directive', function () {
       newTag('foo bar');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foo bar'
         }]);
@@ -664,7 +665,7 @@ describe('combobox directive', function () {
       newTag('foo@bar.com');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foo@bar.com'
         }]);
@@ -678,7 +679,7 @@ describe('combobox directive', function () {
       newTag('foobar.com');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([]);
     });
 
@@ -710,7 +711,7 @@ describe('combobox directive', function () {
       newTag('foobar');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foobar'
         }]);
@@ -727,7 +728,7 @@ describe('combobox directive', function () {
       newTag('foo');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([]);
       expect(getInput())
         .toHaveClass('invalid-tag');
@@ -752,7 +753,7 @@ describe('combobox directive', function () {
       newTag('foo');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foo'
         }]);
@@ -768,7 +769,7 @@ describe('combobox directive', function () {
       newTag('foooooooooooooooooooooooooooooooooooooooooooooooooooooooobar');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'foooooooooooooooooooooooooooooooooooooooooooooooooooooooobar'
         }]);
@@ -782,7 +783,7 @@ describe('combobox directive', function () {
       newTag('foobar');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([]);
       expect(getInput())
         .toHaveClass('invalid-tag');
@@ -791,7 +792,7 @@ describe('combobox directive', function () {
 
   describe('enable-editing-last-tag option', function () {
     beforeEach(function () {
-      $scope.tags = generateTags(3);
+      $scope.tags_data = generateTags(3);
     });
 
     it('initializes the option to false', function () {
@@ -817,7 +818,7 @@ describe('combobox directive', function () {
           expect(getInput()
               .val())
             .toBe('Tag3');
-          expect($scope.tags)
+          expect($scope.tags_data)
             .toEqual([{
               text: 'Tag1'
             }, {
@@ -831,7 +832,7 @@ describe('combobox directive', function () {
           sendBackspace();
 
           // Assert
-          expect($scope.tags)
+          expect($scope.tags_data)
             .toEqual([{
               text: 'Tag1'
             }, {
@@ -864,7 +865,7 @@ describe('combobox directive', function () {
           sendBackspace();
 
           // Assert
-          expect($scope.tags)
+          expect($scope.tags_data)
             .toEqual([{
               text: 'Tag1'
             }, {
@@ -895,7 +896,7 @@ describe('combobox directive', function () {
           expect(getInput()
               .val())
             .toBe('');
-          expect($scope.tags)
+          expect($scope.tags_data)
             .toEqual([{
               text: 'Tag1'
             }, {
@@ -910,7 +911,7 @@ describe('combobox directive', function () {
           sendBackspace();
 
           // Assert
-          expect($scope.tags)
+          expect($scope.tags_data)
             .toEqual([{
               text: 'Tag1'
             }, {
@@ -938,7 +939,7 @@ describe('combobox directive', function () {
       compileWithForm('min-tags="3"', 'name="tags"');
 
       // Act
-      $scope.tags = generateTags(2);
+      $scope.tags_data = generateTags(2);
       $scope.$digest();
 
       // Assert
@@ -953,7 +954,7 @@ describe('combobox directive', function () {
       compileWithForm('min-tags="2"', 'name="tags"');
 
       // Act
-      $scope.tags = generateTags(2);
+      $scope.tags_data = generateTags(2);
       $scope.$digest();
 
       // Assert
@@ -968,7 +969,7 @@ describe('combobox directive', function () {
       compileWithForm('name="tags"');
 
       // Act
-      $scope.tags = generateTags(5);
+      $scope.tags_data = generateTags(5);
       $scope.$digest();
 
       // Assert
@@ -995,7 +996,7 @@ describe('combobox directive', function () {
       compileWithForm('max-tags="2"', 'name="tags"');
 
       // Act
-      $scope.tags = generateTags(3);
+      $scope.tags_data = generateTags(3);
       $scope.$digest();
 
       // Assert
@@ -1010,7 +1011,7 @@ describe('combobox directive', function () {
       compileWithForm('max-tags="2"', 'name="tags"');
 
       // Act
-      $scope.tags = generateTags(2);
+      $scope.tags_data = generateTags(2);
       $scope.$digest();
 
       // Assert
@@ -1025,7 +1026,7 @@ describe('combobox directive', function () {
       compileWithForm('name="tags"');
 
       // Act
-      $scope.tags = generateTags(5);
+      $scope.tags_data = generateTags(5);
       $scope.$digest();
 
       // Assert
@@ -1048,7 +1049,7 @@ describe('combobox directive', function () {
 
     it('renders the correct number of tags', function () {
       // Arrange
-      $scope.tags = [{
+      $scope.tags_data = [{
         id: 1,
         label: 'Tag1'
       }, {
@@ -1084,7 +1085,7 @@ describe('combobox directive', function () {
       newTag('Tag3');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           label: 'Tag1'
         }, {
@@ -1096,13 +1097,13 @@ describe('combobox directive', function () {
 
     it('converts an array of strings into an array of objects', function () {
       // Arrange
-      $scope.tags = ['Item1', 'Item2', 'Item3'];
+      $scope.tags_data = ['Item1', 'Item2', 'Item3'];
 
       // Act
       compile('display-property="label"');
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           label: 'Item1'
         }, {
@@ -1195,7 +1196,7 @@ describe('combobox directive', function () {
         newTag('foo', KEYS.enter);
 
         // Assert
-        expect($scope.tags)
+        expect($scope.tags_data)
           .toEqual([]);
       });
 
@@ -1204,7 +1205,7 @@ describe('combobox directive', function () {
         newTag('foo', KEYS.comma);
 
         // Assert
-        expect($scope.tags)
+        expect($scope.tags_data)
           .toEqual([]);
       });
 
@@ -1213,7 +1214,7 @@ describe('combobox directive', function () {
         newTag('foo', KEYS.space);
 
         // Assert
-        expect($scope.tags)
+        expect($scope.tags_data)
           .toEqual([]);
       });
 
@@ -1225,7 +1226,7 @@ describe('combobox directive', function () {
         isolateScope.events.trigger('input-blur');
 
         // Assert
-        expect(isolateScope.tags)
+        expect(isolateScope.tags_data)
           .toEqual([]);
       });
 
@@ -1265,7 +1266,7 @@ describe('combobox directive', function () {
   describe('on-tag-removed option', function () {
     it('calls the provided callback when a tag is removed by clicking the remove button', function () {
       // Arrange
-      $scope.tags = generateTags(3);
+      $scope.tags_data = generateTags(3);
       $scope.callback = jasmine.createSpy();
       compile('on-tag-removed="callback($tag)"');
 
@@ -1282,7 +1283,7 @@ describe('combobox directive', function () {
 
     it('calls the provided callback when the last tag is removed by pressing backspace twice', function () {
       // Arrange
-      $scope.tags = generateTags(2);
+      $scope.tags_data = generateTags(2);
       $scope.callback = jasmine.createSpy();
       compile('on-tag-removed="callback($tag)"');
 
@@ -1320,7 +1321,7 @@ describe('combobox directive', function () {
 
     it('tries to add a tag', function () {
       // Arrange
-      $scope.tags = [];
+      $scope.tags_data = [];
       $scope.$digest();
 
       // Act
@@ -1329,7 +1330,7 @@ describe('combobox directive', function () {
       });
 
       // Assert
-      expect($scope.tags)
+      expect($scope.tags_data)
         .toEqual([{
           text: 'Tag'
         }]);
@@ -1368,7 +1369,7 @@ describe('combobox directive', function () {
 
     it('returns the list of tags', function () {
       // Arrange
-      $scope.tags = generateTags(2);
+      $scope.tags_data = generateTags(2);
       $scope.$digest();
 
       // Act/Assert

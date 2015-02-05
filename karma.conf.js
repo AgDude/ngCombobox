@@ -14,10 +14,13 @@ module.exports = function(config) {
       'test/lib/angular-mocks.js',
       'test/helpers.js',
       'test/matchers.js',
-      'test/*.spec.js',
+      //'test/*.spec.js',
+      //'test/ng-combobox.spec.js',
+      'test/ng-combobox-new.spec.js',
       'src/init.js',
       'src/*.js',
-      'templates/*.html'
+      'tmp/templates.js'
+      //'templates/*.html'
     ],
 
     preprocessors: {
@@ -41,10 +44,10 @@ module.exports = function(config) {
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress'],
+    reporters: ['progress','coverage'],
 
     // web server port
-    port: 9876,
+    port: 9877,
 
     // enable / disable colors in the output (reporters and logs)
     colors: true,
@@ -64,13 +67,14 @@ module.exports = function(config) {
     // - Safari (only Mac)
     // - PhantomJS
     // - IE (only Windows)
-    browsers: ['Chrome'],
+    //browsers: ['Chrome'],
+    browsers: ['PhantomJS'],
 
     // If browser does not capture in given timeout [ms], kill it
     captureTimeout: 60000,
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: false
+    singleRun: true
   });
 };

@@ -292,19 +292,20 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           // return a promise resolving to an array which will also be set on the model
           var deferred = $q.defer();
           deferred.promise.then(function (tagsModel) {
-            var newViewValue = [],
-              oldViewValue = ngModelCtrl.$viewValue;
-            if ( oldViewValue instanceof Array ){
-              angular.forEach(oldViewValue, function(item, index){
-                if (item !== value ){ newViewValue.push(item); }
-              });
-            };
-            angular.forEach(tagsModel, function(item){
-              newViewValue.push(item);
-            });
-            // remove duplicates
-            newViewValue = newViewValue.filter(function(item, index, self){ return self.indexOf(item) === index; });
-            ngModelCtrl.$setViewValue(newViewValue);
+            ngModelCtrl.$setViewValue(tagsModel);
+            //var newViewValue = [],
+            //  oldViewValue = ngModelCtrl.$viewValue;
+            //if ( oldViewValue instanceof Array ){
+            //  angular.forEach(oldViewValue, function(item, index){
+            //    if (item !== value ){ newViewValue.push(item); }
+            //  });
+            //};
+            //angular.forEach(tagsModel, function(item){
+            //  newViewValue.push(item);
+            //});
+            //// remove duplicates
+            //newViewValue = newViewValue.filter(function(item, index, self){ return self.indexOf(item) === index; });
+            //ngModelCtrl.$setViewValue(newViewValue);
             ngModelCtrl.$setPristine();
           });
 

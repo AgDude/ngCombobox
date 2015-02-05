@@ -59,7 +59,8 @@ module.exports = function (grunt) {
     jshint: {
       files: ['Gruntfile.js', ['<%= files.js.src %>'], ['<%= files.spec.src %>']],
       options: {
-        jshintrc: '.jshintrc'
+        jshintrc: '.jshintrc',
+        jasmine: true
       }
     },
     // Runs all unit tests with Karma
@@ -70,6 +71,7 @@ module.exports = function (grunt) {
       continuous: {
         singleRun: true,
         browsers: ['PhantomJS'],
+        //browsers: ['Chrome'],
         reporters: ['progress', 'coverage']
       }
     },
@@ -295,7 +297,7 @@ module.exports = function (grunt) {
     grunt.file.write(bowerFile, JSON.stringify(bower, null, '  '));
   });
 
-  grunt.registerTask('test', ['jshint', 'karma']);
+  grunt.registerTask('test', ['jshint', 'ngtemplates', 'karma']);
   grunt.registerTask('travis', ['test', 'coveralls']);
   grunt.registerTask('coverage', ['test', 'open:coverage']);
 
