@@ -279,6 +279,11 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
       return matches;
     };
   })
+  .factory('escapeRegExp',function(){
+    return function(str) {
+      return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+    };
+  })
   .factory('isUndefined', function () {
     return function (value, empty) {
       if (angular.isUndefined(value) || value === null) {

@@ -35,7 +35,7 @@ ngCombobox.factory('timeValidator', function () {
     }
   };
 })
-  .directive('timepicker', function (timeValidator) {
+  .directive('timepicker', function (timeValidator, escapeRegExp) {
     return {
       restrict: 'A',
       require: 'combobox',
@@ -72,7 +72,7 @@ ngCombobox.factory('timeValidator', function () {
           var term = $query.$query.toLowerCase(),
             termNum = term.replace(/[\D]/g, ''),
             termAP = term.match(/[apAP\+]/),
-            numMatcher = new RegExp(termNum, 'i'),
+            numMatcher = new RegExp(escapeRegExp(termNum), 'i'),
             deferred = $q.defer(),
             matched, apMatcher;
 

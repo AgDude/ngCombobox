@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2015-02-05 15:44:11 -0600
+ * Generated at 2015-02-05 16:55:31 -0600
  */
 (function() {
 'use strict';
@@ -360,6 +360,11 @@ ngCombobox.factory('SuggestionList', ["$timeout","$interval","$q","$sce", functi
       return matches;
     };
   })
+  .factory('escapeRegExp',function(){
+    return function(str) {
+      return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+    };
+  })
   .factory('isUndefined', function () {
     return function (value, empty) {
       if (angular.isUndefined(value) || value === null) {
@@ -423,7 +428,7 @@ ngCombobox.factory('SuggestionList', ["$timeout","$interval","$q","$sce", functi
  * @param {expression} valueLookup a separate source function to use for initial data. One common use case is that typically searching is done by the displayProperty,
  *                            but initial data may be provided as a primarykey (valueProperty)
  * @param {expression} secondarySource Expression to use if source returns zero items.
- * @param {expression} sortFunc should be a function which takes term as its first param and options.displayPropert as the second. It should return a sorting function accepting a, b
+ * @param {expression} sortFunc should be a function which takes term as its first param and options.displayProperty as the second. It should return a sorting function accepting a, b
  * @param {number=} [debounceDelay=100] Amount of time, in milliseconds, to wait before evaluating the expression in
  *                                      the source option after the last keystroke.
  * @param {number=} [minLength=3] Minimum number of characters that must be entered before evaluating the expression
@@ -436,7 +441,7 @@ ngCombobox.factory('SuggestionList', ["$timeout","$interval","$q","$sce", functi
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  * @param {boolean=} [autofocus] If true, sets the auto-focus HTML5 attribute on the input element
  */
-ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","SuggestionList","TagList","encodeHTML","tagsInputConfig","matchSorter","isUndefined", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined) {
+ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","SuggestionList","TagList","encodeHTML","tagsInputConfig","matchSorter","isUndefined","escapeRegExp", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined, escapeRegExp) {
 
   return {
     restrict: 'E',
@@ -579,11 +584,14 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           ngModelCtrl.$setViewValue(tagsModel);
           ngModelCtrl.$setPristine();
 
-          //Look for a form controller, and set the initial value
+          // Look for a form controller, and set the initial value
           if (!angular.isUndefined(ctrls[2]) && !angular.isUndefined(ctrls[2].initial_data)) {
             ctrls[2].initial_data[attrs.name] = angular.copy(ngModelCtrl.$modelValue);
           }
         }
+        else if ( angular.isUndefined(scope.source) ){
+          scope.source = [];
+        };
 
         scope.isDisabled = function () {
           if ( !angular.isDefined(attrs.disabled) || attrs.disabled === false ) {
@@ -982,7 +990,7 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
         function getMatches(sourceProp) {
           return function getMatches($query) {
             var term = $query.$query.toLowerCase(),
-              containsMatcher = new RegExp(term, 'i'),
+              containsMatcher = new RegExp(escapeRegExp(term), 'i'),
               deferred = $q.defer(),
               matched = grep(scope[sourceProp], function (value) {
                 return containsMatcher.test(value[options.displayProperty]);
@@ -1034,7 +1042,7 @@ ngCombobox.factory('timeValidator', function () {
     }
   };
 })
-  .directive('timepicker', ["timeValidator", function (timeValidator) {
+  .directive('timepicker', ["timeValidator","escapeRegExp", function (timeValidator, escapeRegExp) {
     return {
       restrict: 'A',
       require: 'combobox',
@@ -1071,7 +1079,7 @@ ngCombobox.factory('timeValidator', function () {
           var term = $query.$query.toLowerCase(),
             termNum = term.replace(/[\D]/g, ''),
             termAP = term.match(/[apAP\+]/),
-            numMatcher = new RegExp(termNum, 'i'),
+            numMatcher = new RegExp(escapeRegExp(termNum), 'i'),
             deferred = $q.defer(),
             matched, apMatcher;
 

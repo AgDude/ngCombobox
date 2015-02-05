@@ -59,7 +59,7 @@
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  * @param {boolean=} [autofocus] If true, sets the auto-focus HTML5 attribute on the input element
  */
-ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined) {
+ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined, escapeRegExp) {
 
   return {
     restrict: 'E',
@@ -610,7 +610,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         function getMatches(sourceProp) {
           return function getMatches($query) {
             var term = $query.$query.toLowerCase(),
-              containsMatcher = new RegExp(term, 'i'),
+              containsMatcher = new RegExp(escapeRegExp(term), 'i'),
               deferred = $q.defer(),
               matched = grep(scope[sourceProp], function (value) {
                 return containsMatcher.test(value[options.displayProperty]);
