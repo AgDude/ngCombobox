@@ -142,11 +142,30 @@ describe('combobox directive', function () {
     });
   });
 
-  //describe('source from html options', function(){
-  //  beforeEach(function(){
-  //
-  //  });
-  //});
+  describe('set options source', function(){
+
+    it('Should accept array as a source', function () {
+      $scope.intSource = generateTags(10);
+
+      compile('source="intSource"');
+      expect(isolateScope.source.length).toEqual(10);
+    });
+
+    it('Should accept a function as a source', function () {
+      var tag_arr = generateTags(10);
+      $scope.fnSource = function (term, id){
+      };
+
+      compile('source="fnSource"');
+      expect(isolateScope.source).toEqual($scope.fnSource);
+    });
+
+    it('should not throw an error on undefined source', function(){
+      $scope.noSource = undefined;
+      compile('source="noSource"');
+      expect(isolateScope.source).toBeDefined();
+    });
+  });
 
   describe('loading initial data', function() {
 

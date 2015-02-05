@@ -46,7 +46,7 @@
  * @param {expression} valueLookup a separate source function to use for initial data. One common use case is that typically searching is done by the displayProperty,
  *                            but initial data may be provided as a primarykey (valueProperty)
  * @param {expression} secondarySource Expression to use if source returns zero items.
- * @param {expression} sortFunc should be a function which takes term as its first param and options.displayPropert as the second. It should return a sorting function accepting a, b
+ * @param {expression} sortFunc should be a function which takes term as its first param and options.displayProperty as the second. It should return a sorting function accepting a, b
  * @param {number=} [debounceDelay=100] Amount of time, in milliseconds, to wait before evaluating the expression in
  *                                      the source option after the last keystroke.
  * @param {number=} [minLength=3] Minimum number of characters that must be entered before evaluating the expression
@@ -202,11 +202,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           ngModelCtrl.$setViewValue(tagsModel);
           ngModelCtrl.$setPristine();
 
-          //Look for a form controller, and set the initial value
+          // Look for a form controller, and set the initial value
           if (!angular.isUndefined(ctrls[2]) && !angular.isUndefined(ctrls[2].initial_data)) {
             ctrls[2].initial_data[attrs.name] = angular.copy(ngModelCtrl.$modelValue);
           }
         }
+        else if ( angular.isUndefined(scope.source) ){
+          scope.source = [];
+        };
 
 
         scope.isDisabled = function () {
