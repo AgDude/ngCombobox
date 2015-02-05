@@ -7,7 +7,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2015-01-23 08:51:04 -0600
+ * Generated at 2015-02-05 10:18:04 -0600
  */
 (function() {
 'use strict';
@@ -568,13 +568,12 @@ ngCombobox.directive('combobox', ["$timeout","$document","$sce","$q","grep","Sug
           angular.forEach(htmlOptions, function (opt, index) {
             var optObj = {};
             optObj[options.valueProperty] = opt.value;
-            optObj[options.displayProperty] = opt.label;
+            optObj[options.displayProperty] = opt.label || angular.element(opt).text(); // IE9 doesn't accept opt.label
             source.push(optObj);
             if (opt.selected) {
               tagsModel.push(optObj);
             }
-            angular.element(opt)
-              .remove();
+            angular.element(opt).remove();
           });
           scope.source = source;
           ngModelCtrl.$setViewValue(tagsModel);

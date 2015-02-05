@@ -191,13 +191,12 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           angular.forEach(htmlOptions, function (opt, index) {
             var optObj = {};
             optObj[options.valueProperty] = opt.value;
-            optObj[options.displayProperty] = opt.label;
+            optObj[options.displayProperty] = opt.label || angular.element(opt).text(); // IE9 doesn't accept opt.label
             source.push(optObj);
             if (opt.selected) {
               tagsModel.push(optObj);
             }
-            angular.element(opt)
-              .remove();
+            angular.element(opt).remove();
           });
           scope.source = source;
           ngModelCtrl.$setViewValue(tagsModel);
