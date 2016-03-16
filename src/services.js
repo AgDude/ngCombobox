@@ -1,5 +1,7 @@
 'use strict';
 
+var ngCombobox = require('./combobox');
+var comboboxUtils = require('./util');
 ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
   return function (primaryFn, secondaryFn, options) {
     var self = {},
@@ -7,7 +9,7 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
 
     getDifference = function (array1, array2) {
       return array1.filter(function (item) {
-        return !findInObjectArray(array2, item, options.displayProperty);
+        return !comboboxUtils.findInObjectArray(array2, item, options.displayProperty);
       });
     };
 
@@ -47,7 +49,7 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
     };
 
     self.load = function (query, tags, force, loadFn) {
-      if (query.length < options.minSearchLength && !force) {
+      if (!force && query.length < options.minSearchLength) {
         self.reset();
         return;
       }
@@ -74,8 +76,7 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
           $timeout(function () {
             self.loading = true;
           });
-        }
-        ;
+        };
         lastPromise = promise;
 
         promise.then(function (items) {
@@ -83,7 +84,7 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
             return;
           }
 
-          items = makeObjectArray(items.data || items, options.displayProperty);
+          items = comboboxUtils.makeObjectArray(items.data || items, options.displayProperty);
           items = getDifference(items, tags);
           if (secondaryFn && items.length === 0 && loadFn === primaryFn) {
             self.visible = false;
@@ -155,7 +156,7 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
 
         return tagText.length >= options.minLength &&
           tagText.length <= (options.maxLength || tagText.length) &&
-          options.allowedTagsPattern.test(tagText) && !findInObjectArray(self.items, tag, options.displayProperty);
+          options.allowedTagsPattern.test(tagText) && !comboboxUtils.findInObjectArray(self.items, tag, options.displayProperty);
       };
 
       self.items = [];
@@ -298,8 +299,3 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
       return false;
     };
   });
-
-
-
-
-

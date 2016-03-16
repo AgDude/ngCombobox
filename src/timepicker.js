@@ -1,5 +1,6 @@
 'use strict';
 
+var ngCombobox = require('./combobox');
 ngCombobox.factory('timeValidator', function () {
   return function (tag) {
     var hr, minute,

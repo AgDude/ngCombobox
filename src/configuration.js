@@ -9,6 +9,7 @@
  * Sets global configuration settings for both tagsInput and autoComplete directives. It's also used internally to parse and
  * initialize options from HTML attributes.
  */
+var ngCombobox = require('./combobox');
 ngCombobox.provider('tagsInputConfig', function () {
   var globalDefaults = {},
     interpolationStatus = {};

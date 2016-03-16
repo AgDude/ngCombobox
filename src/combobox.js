@@ -59,6 +59,13 @@
  * @param {string=} [savingMsg=None] Message to display while newTagAdded callback is executed.
  * @param {boolean=} [autofocus] If true, sets the auto-focus HTML5 attribute on the input element
  */
+var ngCombobox = angular.module('ngCombobox', []);
+
+module.exports  = ngCombobox;
+
+var KEYS = require('./keycodes');
+var comboboxUtils = require('./util');
+var template = require('html!../templates/combobox.html');
 ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined, escapeRegExp) {
 
   return {
@@ -77,7 +84,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
     },
     replace: false,
     transclude: true,
-    templateUrl: 'ngCombobox/combobox.html',
+    template: template,
     controller: function ($scope, $attrs, $element) {
       tagsInputConfig.load('ngCombobox', $scope, $attrs, {
         placeholder: [String, ''],
@@ -115,7 +122,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         autofocus: [Boolean, false]
       });
 
-      $scope.events = new SimplePubSub();
+      $scope.events = new comboboxUtils.SimplePubSub();
       $scope.tagList = new TagList($scope.options, $scope.events);
       $scope.removeTag = function ($index) {
         if (!$scope.isDisabled()) {
@@ -161,7 +168,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         };
 
         //set options for timepicker
-        if (timepickerCtrl !== undefined) {
+        if ( timepickerCtrl !== undefined && timepickerCtrl !== null ) {
           scope.source = timepickerCtrl.timeMatcher;
           scope.newTagAdded = timepickerCtrl.timeValidator;
           valueLookup = timepickerCtrl.fromValue;
@@ -373,7 +380,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             return tagsFromValue(value.fromValue);
           }
           else {
-            scope.tags = makeObjectArray(value, options.displayProperty);
+            scope.tags = comboboxUtils.makeObjectArray(value, options.displayProperty);
           }
           scope.tagList.items = scope.tags;
         });
@@ -434,7 +441,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           var text = getItemText(item);
           text = encodeHTML(text);
           if (options.highlightMatchedText) {
-            text = replaceAll(text, encodeHTML(suggestionList.query), '<em>$&</em>');
+            text = comboboxUtils.replaceAll(text, encodeHTML(suggestionList.query), '<em>$&</em>');
           }
           return $sce.trustAsHtml(text);
         };

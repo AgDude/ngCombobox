@@ -51,3 +51,9 @@ function replaceAll(str, substr, newSubstr) {
   return str.replace(new RegExp(expression, 'gi'), newSubstr);
 }
 
+module.exports = {
+  SimplePubSub: SimplePubSub,
+  makeObjectArray: makeObjectArray,
+  findInObjectArray: findInObjectArray,
+  replaceAll: replaceAll
+};

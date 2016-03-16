@@ -8,6 +8,8 @@
  * @description
  * Automatically sets the input's width so its content is always visible. Used internally by combobox directive.
  */
+
+var ngCombobox = require('./combobox');
 ngCombobox.directive('tiAutosize', function () {
   return {
     restrict: 'A',

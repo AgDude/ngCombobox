@@ -12,3 +12,5 @@ var KEYS = {
   period: 190,
   dot: 110
 };
+
+module.exports = KEYS;
