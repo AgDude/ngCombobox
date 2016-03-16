@@ -392,6 +392,9 @@
 
 	              ngModelCtrl.$setValidity('leftoverText', options.allowLeftoverText ? true : !scope.newTag.text);
 	            }
+	            else if ( !options.allowLeftoverText) {
+	              scope.newTag.text  = '';
+	            }
 	          })
 	          .on('new-tag-added', function (tag) {
 	            if (scope.newTagAdded === undefined) {
@@ -674,6 +677,9 @@
 	                lostFocusToChildElement = element[0].contains(activeElement);
 
 	              if (lostFocusToBrowserWindow || !lostFocusToChildElement) {
+	                if ( suggestionList.items.length === 1){
+	                  scope.addSuggestion();
+	                }
 	                scope.hasFocus = false;
 	                suggestionList.reset();
 	                events.trigger('input-blur');
