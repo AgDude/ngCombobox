@@ -193,7 +193,7 @@
 	var KEYS = __webpack_require__(3);
 	var comboboxUtils = __webpack_require__(4);
 	var template = __webpack_require__(5);
-	ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined, escapeRegExp) {
+	ngCombobox.directive('combobox', ["$timeout", "$document", "$sce", "$q", "grep", "SuggestionList", "TagList", "encodeHTML", "tagsInputConfig", "matchSorter", "isUndefined", "escapeRegExp", function ($timeout, $document, $sce, $q, grep, SuggestionList, TagList, encodeHTML, tagsInputConfig, matchSorter, isUndefined, escapeRegExp) {
 
 	  return {
 	    restrict: 'E',
@@ -212,7 +212,7 @@
 	    replace: false,
 	    transclude: true,
 	    template: template,
-	    controller: function ($scope, $attrs, $element) {
+	    controller: ["$scope", "$attrs", "$element", function ($scope, $attrs, $element) {
 	      tagsInputConfig.load('ngCombobox', $scope, $attrs, {
 	        placeholder: [String, ''],
 	        disabledPlaceholder: [String, ''],
@@ -257,7 +257,7 @@
 	        }
 	      };
 
-	    },
+	    }],
 	    link: {
 	      post: function (scope, element, attrs, ctrls) {
 	        var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down, KEYS.dot, KEYS.period, KEYS.space, KEYS.comma, KEYS.backspace],
@@ -485,7 +485,7 @@
 	        };
 
 	        scope.getDisplayText = function (tag) {
-	          if ( angular.isUndefined(tag) ){ return ''; }
+	          if ( angular.isUndefined(tag) || angular.isUndefined(tag[options.displayProperty]) ){ return ''; }
 	          return tag[options.displayProperty].trim();
 	        };
 
@@ -764,7 +764,7 @@
 	      }
 	    }
 	  };
-	});
+	}]);
 
 
 /***/ },
@@ -912,7 +912,7 @@
 	    return this;
 	  };
 
-	  this.$get = function ($interpolate) {
+	  this.$get = ["$interpolate", function ($interpolate) {
 	    var converters = {};
 	    converters[String] = function (value) {
 	      return value;
@@ -957,7 +957,7 @@
 	        });
 	      }
 	    };
-	  };
+	  }];
 	});
 
 
@@ -969,7 +969,7 @@
 
 	var ngCombobox = __webpack_require__(2);
 	var comboboxUtils = __webpack_require__(4);
-	ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
+	ngCombobox.factory('SuggestionList', ["$timeout", "$interval", "$q", "$sce", function ($timeout, $interval, $q, $sce) {
 	  return function (primaryFn, secondaryFn, options) {
 	    var self = {},
 	      debounceDelay, debouncedLoadId, loadingInterval, getDifference, lastPromise;
@@ -1097,7 +1097,7 @@
 
 	    return self;
 	  };
-	})
+	}])
 	  .factory('encodeHTML', function () {
 	    return function (value) {
 	      return value.replace(/&/g, '&amp;')
@@ -1208,7 +1208,7 @@
 	      return 0;
 	    };
 	  })
-	  .factory('matchSorter', function (numberSorter) {
+	  .factory('matchSorter', ["numberSorter", function (numberSorter) {
 	    return function (term, displayProperty) {
 	      displayProperty = displayProperty === undefined ? 'text' : displayProperty;
 	      if (!term) {
@@ -1225,7 +1225,7 @@
 	        return 0;
 	      };
 	    };
-	  })
+	  }])
 	  .factory('grep', function () {
 	    //Copied from jquery.grep
 	    return function (elems, callback, invert) {
@@ -1310,12 +1310,12 @@
 	    }
 	  };
 	})
-	  .directive('timepicker', function (timeValidator, escapeRegExp) {
+	  .directive('timepicker', ["timeValidator", "escapeRegExp", function (timeValidator, escapeRegExp) {
 	    return {
 	      restrict: 'A',
 	      require: 'combobox',
 	      priority: 10,
-	      controller: function ($scope, $q, grep, matchSorter) {
+	      controller: ["$scope", "$q", "grep", "matchSorter", function ($scope, $q, grep, matchSorter) {
 	        var ap, hr, minute,
 	          timeMatcher,
 	          times = [],
@@ -1388,9 +1388,9 @@
 	          return deferred.promise;
 	        };
 
-	      }
+	      }]
 	    };
-	  });
+	  }]);
 
 
 /***/ },
