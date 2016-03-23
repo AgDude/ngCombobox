@@ -509,7 +509,7 @@
 	          else if (value instanceof Object && value.hasOwnProperty('fromValue')) {
 	            return tagsFromValue(value.fromValue);
 	          }
-	          else {
+	          else if ( angular.isArray(value) ){
 	            scope.tags = comboboxUtils.makeObjectArray(value, options.displayProperty);
 	          }
 	          scope.tagList.items = scope.tags;
