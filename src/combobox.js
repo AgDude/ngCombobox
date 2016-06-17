@@ -303,58 +303,52 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
 
         tagsFromValue = function (value) {
           // return a promise resolving to an array which will also be set on the model
-          var deferred = $q.defer();
-          deferred.promise.then(function (tagsModel) {
-            //ngModelCtrl.$setViewValue(tagsModel);
-            var newViewValue = [],
-              oldViewValue = ngModelCtrl.$viewValue;
-            if ( oldViewValue instanceof Array ){
-              // This is intended to preserve the initial value of the tags Array, and push new values to it
-              angular.forEach(oldViewValue, function(item, index){
-                if (item !== value ){ newViewValue.push(item); }
-              });
-            };
-            angular.forEach(tagsModel, function(item){
-              newViewValue.push(item);
-            });
-            // remove duplicates based on valueProperty
-            newViewValue = newViewValue.filter(
-              function(item, index, self){
-                return self.map(function(inner){ return inner[options.valueProperty]; }).indexOf(item[options.valueProperty]) === index;
+          return $q.when((function () {
+              if ( isUndefined(value, true) || ( value.hasOwnProperty('fromValue') && isUndefined(value.fromValue, true) )) {
+                return $q.when([]);
+              }
+              else if ( value.hasOwnProperty('fromValue') ){
+                value = value.fromValue;
               }
 
-            );
-            ngModelCtrl.$setViewValue(newViewValue);
-            ngModelCtrl.$setPristine();
-          });
+              if ( !isUndefined(valueLookup)) {
+                return valueLookup(value);
+              }
+              else if ( scope.source instanceof Array ) {
+                return $q.when(scope.source.filter(function (obj) {
+                  var thisValue = obj[options.valueProperty];
+                  return !angular.isUndefined(thisValue) && thisValue.toString() === value.toString();
+                }));
+              }
+              else {
+                return $q.when([]);
+              }
+            })())
+            .then(function (tagsModel) {
+              var newViewValue = [],
+                oldViewValue = ngModelCtrl.$viewValue;
 
-          if ( isUndefined(value, true) ) {
-            deferred.resolve([]);
-            return deferred.promise;
-          }
-          if ( value.hasOwnProperty('fromValue') ){
-            value = value.fromValue;
-            if ( isUndefined(value, true) ) {
-              deferred.resolve([]);
-              return deferred.promise;
-            }
-          }
-          if ( !isUndefined(valueLookup)) {
-            valueLookup(value).then(function (result) {
-              deferred.resolve(result);
+              if ( oldViewValue instanceof Array ){
+                // This is intended to preserve the initial value of the tags Array, and push new values to it
+                angular.forEach(oldViewValue, function(item, index){
+                  if (item !== value ){ newViewValue.push(item); }
+                });
+              }
+
+              angular.forEach(tagsModel, function(item){
+                newViewValue.push(item);
+              });
+
+              // remove duplicates based on valueProperty
+              newViewValue = newViewValue.filter(
+                function(item, index, self){
+                  return self.map(function(inner){ return inner[options.valueProperty]; }).indexOf(item[options.valueProperty]) === index;
+                }
+
+              );
+              ngModelCtrl.$setViewValue(newViewValue);
+              ngModelCtrl.$setPristine();
             });
-          }
-          else if ( scope.source instanceof Array ) {
-            deferred.resolve(scope.source.filter(function (obj) {
-              var thisValue = obj[options.valueProperty];
-              return !angular.isUndefined(thisValue) && thisValue.toString() === value.toString();
-            }));
-          }
-          else {
-            deferred.resolve([]);
-          }
-
-          return deferred.promise;
         };
 
         scope.getDisplayText = function (tag) {
@@ -374,7 +368,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           events.trigger('input-change', scope.newTag.text);
         };
 
-        scope.$watch('tags', function (value) {
+        scope.$watch('tags', function (value, oldValue) {
           if (value === undefined || value === null || (value.length > 0 && value[0] === undefined)) {
             // If it is undefined, set it to an empty array
             scope.tags = [];
@@ -385,7 +379,14 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
           else if ( angular.isArray(value) ){
             scope.tags = comboboxUtils.makeObjectArray(value, options.displayProperty);
           }
-          scope.tagList.items = scope.tags;
+          else if (typeof value === 'string' || angular.isNumber(value) ){
+            tagsFromValue(value);
+          }
+
+          if ( angular.isArray(scope.tags) ){
+            scope.tagList.items = scope.tags;
+          }
+
         });
 
         scope.$watch('tags.length', function (value) {
