@@ -656,6 +656,8 @@
 	            if (handled) {
 	              if (key !== KEYS.tab) {
 	                e.preventDefault();
+	              }
+	              if ( key === KEYS.enter ){
 	                e.stopPropagation();
 	              }
 	              scope.$apply();

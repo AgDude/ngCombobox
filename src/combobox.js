@@ -529,6 +529,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             if (handled) {
               if (key !== KEYS.tab) {
                 e.preventDefault();
+              }
+              if ( key === KEYS.enter ){
                 e.stopPropagation();
               }
               scope.$apply();
