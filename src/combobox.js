@@ -236,7 +236,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             scope.newTag.text = '';
           })
           .on('tag-added tag-removed', function () {
-            ngModelCtrl.$setViewValue(scope.tags);
+            setModelValue(scope.tags);
+            ngModelCtrl.$setDirty();
             scope.$parent.$eval(attrs.ngChange);
           })
           .on('tag-added invalid-tag', function () {
@@ -344,9 +345,8 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
                 function(item, index, self){
                   return self.map(function(inner){ return inner[options.valueProperty]; }).indexOf(item[options.valueProperty]) === index;
                 }
-
               );
-              ngModelCtrl.$setViewValue(newViewValue);
+              setModelValue(newViewValue);
               ngModelCtrl.$setPristine();
             });
         };
@@ -636,6 +636,12 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             deferred.resolve(matched);
             return deferred.promise;
           };
+        }
+
+        function setModelValue(newValue) {
+          ngModelCtrl.$setViewValue(newValue);
+          ngModelCtrl.$validate();
+          ngModelCtrl.$commitViewValue();
         }
       }
     }

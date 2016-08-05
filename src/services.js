@@ -275,8 +275,8 @@ ngCombobox.factory('SuggestionList', function ($timeout, $interval, $q, $sce) {
         if (callbackInverse !== callbackExpect) {
           matches.push(elems[i]);
         }
-      }
-      ;
+      };
+
       return matches;
     };
   })

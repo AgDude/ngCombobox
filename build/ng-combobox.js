@@ -363,7 +363,8 @@
 	            scope.newTag.text = '';
 	          })
 	          .on('tag-added tag-removed', function () {
-	            ngModelCtrl.$setViewValue(scope.tags);
+	            setModelValue(scope.tags);
+	            ngModelCtrl.$setDirty();
 	            scope.$parent.$eval(attrs.ngChange);
 	          })
 	          .on('tag-added invalid-tag', function () {
@@ -471,9 +472,8 @@
 	                function(item, index, self){
 	                  return self.map(function(inner){ return inner[options.valueProperty]; }).indexOf(item[options.valueProperty]) === index;
 	                }
-
 	              );
-	              ngModelCtrl.$setViewValue(newViewValue);
+	              setModelValue(newViewValue);
 	              ngModelCtrl.$setPristine();
 	            });
 	        };
@@ -763,6 +763,12 @@
 	            deferred.resolve(matched);
 	            return deferred.promise;
 	          };
+	        }
+
+	        function setModelValue(newValue) {
+	          ngModelCtrl.$setViewValue(newValue);
+	          ngModelCtrl.$validate();
+	          ngModelCtrl.$commitViewValue();
 	        }
 	      }
 	    }
@@ -1245,8 +1251,8 @@
 	        if (callbackInverse !== callbackExpect) {
 	          matches.push(elems[i]);
 	        }
-	      }
-	      ;
+	      };
+
 	      return matches;
 	    };
 	  })
