@@ -6,9 +6,8 @@ ngCombobox.factory('timeValidator', function () {
     var hr, minute,
       timeStr, timeVal,
       num = tag.text.replace(/\D/g, ''),
-      ap = tag.text.match(/[apAP+]/);
+      ap = tag.text.match(/[apAP\+]/);
 
-    ap = (ap === 'p' || ap === 'P' || ap === '+') ? 'PM' : 'AM';
     hr = ( num.length === 3 ) ? num.substr(0, 1) : num.substr(0, 2);
     minute = ( num.length === 3 ) ? num.substr(1, 2) : num.substr(2, 2);
     if (parseInt(hr) > 12) {
@@ -19,6 +18,15 @@ ngCombobox.factory('timeValidator', function () {
       hr = 12;
       ap = 'AM';
     }
+    else if (parseInt(hr) === 12 && ap === null ){
+      // assume noon to support Date()
+      hr = 12;
+      ap = 'PM';
+    }
+    else {
+      ap = (ap === 'p' || ap === 'P' || ap === '+') ? 'PM' : 'AM';
+    }
+
     timeStr = hr + ':' + minute + ' ' + ap;
     if (/(^[0-9]|[0-1][0-9]|[2][0-4]):([0-5][0-9])\s?(AM|PM)?$/.test(timeStr)) {
       timeVal = ap === 'PM' ? parseInt(hr) + 12 : hr;
@@ -56,7 +64,6 @@ ngCombobox.factory('timeValidator', function () {
           else {
             hr = (i - 12).toString();
           }
-          ;
 
           for (var j = 0; j < 60; j += 15) {
             ap = i >= 12 ? ' PM' : ' AM';
@@ -83,7 +90,6 @@ ngCombobox.factory('timeValidator', function () {
           else if (termAP === '+') {
             termAP = 'P';
           }
-          ;
 
           apMatcher = new RegExp(termAP, 'i');
 
