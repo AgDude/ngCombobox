@@ -31,7 +31,7 @@
         <li class="suggestion-item"
           ng-repeat="item in suggestionList.items track by $id(item)"
           ng-class="{selected: item == suggestionList.selected}"
-          ng-click="addSuggestion()"
+          ng-click="addSuggestionByIndex($index)"
           ng-mouseenter="suggestionList.select($index)"
           ng-bind-html="highlight(item)">
         </li>

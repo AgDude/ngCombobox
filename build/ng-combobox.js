@@ -343,7 +343,7 @@
 	        }
 	        else if ( angular.isUndefined(scope.source) ){
 	          scope.source = [];
-	        };
+	        }
 
 
 	        scope.isDisabled = function () {
@@ -550,6 +550,11 @@
 	            suggestionList.load(scope.newTag.text, scope.tags, true);
 	          }
 	        };
+
+	        scope.addSuggestionByIndex = function(index) {
+	           suggestionList.select(index);
+	           scope.addSuggestion();
+	       };
 
 	        scope.addSuggestion = function () {
 	          var added = false;
@@ -867,7 +872,7 @@
 /* 5 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"host\" ng-class=\"{'input-group': options.showAll }\" tabindex=\"-1\" ti-transclude-prepend>\n  <div class=\"tags\" ng-class=\"{'focused': hasFocus, 'disabled':isDisabled()}\">\n    <ul class=\"tag-list\">\n      <li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\">\n        <span>{{getDisplayText(tag)}}</span>\n        <a class=\"remove-button\" ng-click=\"removeTag($index)\" ng-if=\"options.removeButton\">{{options.removeTagSymbol}}</a>\n      </li>\n    </ul>\n    <input type=\"text\"\n           class=\"input\"\n           placeholder=\"{{tags.length < options.maxTags && options.currentPlaceholder || '' }}\"\n           tabindex=\"{{options.tabindex}}\"\n           ng-model=\"newTag.text\"\n           ng-readonly=\"newTag.readonly\"\n           ng-change=\"newTagChange()\"\n           ng-trim=\"false\"\n           ng-class=\"{'invalid-tag': newTag.invalid, 'input-narrow' : tags.length >= options.maxTags}\"\n           ng-disabled=\"isDisabled()\"\n           ti-autosize>\n  </div>\n <div>\n   <div class=\"autocomplete clearfix\" ng-show=\"suggestionList.visible || suggestionList.msgVisible()\">\n      <!-- Messages -->\n      <ul class=\"suggestion-list\" ng-hide=\"suggestionList.visible\">\n        <li class=\"suggestion-item\" ng-click=\"addNewTag()\" ng-show=\"suggestionList.confirm\">{{ suggestionList.confirm }}</li>\n        <li class=\"suggestion-item\" ng-show=\"suggestionList.newSaving\">{{ options.savingMsg }}</li>\n        <li class=\"suggestion-item\" ng-show=\"suggestionList.loading && !suggestionList.confirm\">{{ suggestionList.msg }}</li>\n      </ul>\n      <!-- Actual Suggestions -->\n      <ul class=\"suggestion-list\" ng-show=\"suggestionList.visible\">\n        <li class=\"suggestion-item\"\n          ng-repeat=\"item in suggestionList.items track by $id(item)\"\n          ng-class=\"{selected: item == suggestionList.selected}\"\n          ng-click=\"addSuggestion()\"\n          ng-mouseenter=\"suggestionList.select($index)\"\n          ng-bind-html=\"highlight(item)\">\n        </li>\n        <li class=\"suggestion-item\"\n          ng-show=\"options.showTotal && suggestionList.more\">\n              ... and {{ suggestionList.more }} more\n        </li>\n      </ul>\n    </div>\n </div>\n  <span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList(); $event.stopPropagation();\">\n    <span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\" >\n      <span class=\"ui-button-text\" style=\"padding: 0px;\">&nbsp;</span>\n    </span>\n  </span>\n</div>\n";
+	module.exports = "<div class=\"host\" ng-class=\"{'input-group': options.showAll }\" tabindex=\"-1\" ti-transclude-prepend>\n  <div class=\"tags\" ng-class=\"{'focused': hasFocus, 'disabled':isDisabled()}\">\n    <ul class=\"tag-list\">\n      <li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by $id(tag)\" ng-class=\"{ selected: tag == tagList.selected }\">\n        <span>{{getDisplayText(tag)}}</span>\n        <a class=\"remove-button\" ng-click=\"removeTag($index)\" ng-if=\"options.removeButton\">{{options.removeTagSymbol}}</a>\n      </li>\n    </ul>\n    <input type=\"text\"\n           class=\"input\"\n           placeholder=\"{{tags.length < options.maxTags && options.currentPlaceholder || '' }}\"\n           tabindex=\"{{options.tabindex}}\"\n           ng-model=\"newTag.text\"\n           ng-readonly=\"newTag.readonly\"\n           ng-change=\"newTagChange()\"\n           ng-trim=\"false\"\n           ng-class=\"{'invalid-tag': newTag.invalid, 'input-narrow' : tags.length >= options.maxTags}\"\n           ng-disabled=\"isDisabled()\"\n           ti-autosize>\n  </div>\n <div>\n   <div class=\"autocomplete clearfix\" ng-show=\"suggestionList.visible || suggestionList.msgVisible()\">\n      <!-- Messages -->\n      <ul class=\"suggestion-list\" ng-hide=\"suggestionList.visible\">\n        <li class=\"suggestion-item\" ng-click=\"addNewTag()\" ng-show=\"suggestionList.confirm\">{{ suggestionList.confirm }}</li>\n        <li class=\"suggestion-item\" ng-show=\"suggestionList.newSaving\">{{ options.savingMsg }}</li>\n        <li class=\"suggestion-item\" ng-show=\"suggestionList.loading && !suggestionList.confirm\">{{ suggestionList.msg }}</li>\n      </ul>\n      <!-- Actual Suggestions -->\n      <ul class=\"suggestion-list\" ng-show=\"suggestionList.visible\">\n        <li class=\"suggestion-item\"\n          ng-repeat=\"item in suggestionList.items track by $id(item)\"\n          ng-class=\"{selected: item == suggestionList.selected}\"\n          ng-click=\"addSuggestionByIndex($index)\"\n          ng-mouseenter=\"suggestionList.select($index)\"\n          ng-bind-html=\"highlight(item)\">\n        </li>\n        <li class=\"suggestion-item\"\n          ng-show=\"options.showTotal && suggestionList.more\">\n              ... and {{ suggestionList.more }} more\n        </li>\n      </ul>\n    </div>\n </div>\n  <span class=\"input-group-addon\" ng-if=\"options.showAll\" ng-click=\"toggleSuggestionList(); $event.stopPropagation();\">\n    <span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\" >\n      <span class=\"ui-button-text\" style=\"padding: 0px;\">&nbsp;</span>\n    </span>\n  </span>\n</div>\n";
 
 /***/ },
 /* 6 */

@@ -216,7 +216,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
         }
         else if ( angular.isUndefined(scope.source) ){
           scope.source = [];
-        };
+        }
 
 
         scope.isDisabled = function () {
@@ -423,6 +423,11 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             suggestionList.load(scope.newTag.text, scope.tags, true);
           }
         };
+
+        scope.addSuggestionByIndex = function(index) {
+           suggestionList.select(index);
+           scope.addSuggestion();
+       };
 
         scope.addSuggestion = function () {
           var added = false;
