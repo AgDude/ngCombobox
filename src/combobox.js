@@ -598,6 +598,7 @@ ngCombobox.directive('combobox', function ($timeout, $document, $sce, $q, grep, 
             options.currentPlaceholder = 'Loading Initial Data...';
             listener = scope.$watch('source', function (newVal, oldVal) {
               if (newVal.length > 0) {
+                options.currentPlaceholder = options.placeholder;
                 setInitialData();
                 listener();
               }
