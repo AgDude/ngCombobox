@@ -11,6 +11,7 @@ module.exports = {
     new ngAnnotatePlugin({
         add: true,
     }),
+    new webpack.BannerPlugin('Generated at ' + new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()),
     //new webpack.optimize.UglifyJsPlugin({
     //compress: {
     //    warnings: false
